@@ -7,6 +7,9 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import static io.restassured.RestAssured.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.*;
@@ -26,6 +29,11 @@ public class P02_HamcrestSpartan extends SpartanTestBase {
         "gender": "Female",
         "phone": 1938695106
      */
+    public static void main(String[] args) {
+
+
+
+    }
 
 
     @DisplayName("Get Single Spartan with Hamcrest")

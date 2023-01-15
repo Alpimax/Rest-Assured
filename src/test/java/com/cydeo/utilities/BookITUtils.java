@@ -1,4 +1,5 @@
 package com.cydeo.utilities;
+
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -10,10 +11,11 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static io.restassured.RestAssured.*;
+
 public class BookITUtils {
 
 
-    public static String getToken(String email,String password){
+    public static String getToken(String email, String password) {
 
         String accessToken = given().accept(ContentType.JSON)
                 .queryParam("email", email)
@@ -24,13 +26,13 @@ public class BookITUtils {
                 .getString("accessToken");
 
         // This is a verification to see we are getting not null Value
-        assertThat(accessToken,not(emptyOrNullString()));
+        assertThat(accessToken, not(emptyOrNullString()));
 
-        return "Bearer "+accessToken;
+        return "Bearer " + accessToken;
     }
 
 
-    // how  you build connection here ?
+    // how you build connection here ?
     /*
         Before all will init BASEURI since it is static field for RestAssured
         when we send any request it will use as BASEURI --> BOOKIT BASEURI
@@ -104,8 +106,8 @@ public class BookITUtils {
                 password = ConfigurationReader.getProperty("team_leader_password");
                 break;
             default:
-
-                throw new RuntimeException("Invalid Role Entry :\n>> " + role +" <<");
+                System.err.println("check your " + role);
+                throw new RuntimeException("Invalid Role Entry :\n>> " + role + " <<");
         }
 
         Map<String, String> credentials = new HashMap<>();
@@ -114,30 +116,28 @@ public class BookITUtils {
 
         String accessToken = given()
                 .queryParams(credentials)
-                .when().get( "/sign").path("accessToken");
+                .when().get("/sign").path("accessToken");
 
-        return  "Bearer " + accessToken;
+        return "Bearer " + accessToken;
 
     }
 
 
-
-    public static RequestSpecification getReqSpec(String role){
+    public static RequestSpecification getReqSpec(String role) {
 
         RequestSpecification reqSpec = given().log().all()
                 .header("Authorization", getTokenByRole(role))
                 .accept(ContentType.JSON);
 
         return reqSpec;
-
     }
 
 
-    public static ResponseSpecification getResSpec(int statusCode){
+    public static ResponseSpecification getResSpec(int statusCode) {
 
-     return   expect().statusCode(statusCode)
+        return expect().statusCode(statusCode)
                 .contentType(ContentType.JSON);
-  }
+    }
 
 
 }

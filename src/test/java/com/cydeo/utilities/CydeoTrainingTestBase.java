@@ -8,6 +8,5 @@ public abstract class CydeoTrainingTestBase {
     public static void init(){
 
         RestAssured.baseURI="https://api.training.cydeo.com";
-
     }
 }

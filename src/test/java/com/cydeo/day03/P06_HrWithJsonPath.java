@@ -11,6 +11,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.*;
 import static org.junit.jupiter.api.Assertions.*;
+
 public class P06_HrWithJsonPath extends HrTestBase {
 
     @DisplayName("GET all countries")
@@ -38,7 +39,7 @@ public class P06_HrWithJsonPath extends HrTestBase {
 
 
         // get me 3rd and 4th country name
-        System.out.println("jsonPath.getString(\"items[2,3].country_name\") = " + jsonPath.getString("items[2,3].country_name"));
+        System.out.println( jsonPath.getString("items[2,3].country_name"));
 
 
 

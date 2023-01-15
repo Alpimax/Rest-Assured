@@ -42,6 +42,8 @@ public class P02_SpartanPOST extends SpartanTestBase {
                 "     \"phone\":8877445596\n" +
                 "     }";
 
+
+
         String expectedMessage="A Spartan is Born!";
 
         JsonPath jsonPath = given().accept(ContentType.JSON).log().body()// API send me response in JSON format

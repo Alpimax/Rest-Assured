@@ -67,6 +67,7 @@ public class P01_SpartanGetRequests {
     }
 
 
+
     /*
      * Given accept  content type is application/json
      * When user sends GET request /api/spartans/3 endpoint
@@ -111,6 +112,7 @@ public class P01_SpartanGetRequests {
 
 
     }
+
 
     /*
         Given no headers provided

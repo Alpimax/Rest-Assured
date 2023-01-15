@@ -20,7 +20,7 @@ public class P03_SpartanPUTPATCHDELETE extends SpartanTestBase {
         Map<String,Object> requestBody=new LinkedHashMap<>();
         requestBody.put("name","James Bond PUT");
         requestBody.put("gender","Male");
-        requestBody.put("phone",1234567890l);
+        requestBody.put("phone",1234567890L);
 
         // PUT will update existing record so we choose one the existing ID.It may be different for you.JUST choose one of the existing
         int id=319;

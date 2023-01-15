@@ -6,6 +6,7 @@ import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.BeforeAll;
 
 import static io.restassured.RestAssured.*;
+
 public abstract class SpartanNewTestBase {
 
     public static RequestSpecification reqSpec;
@@ -14,11 +15,11 @@ public abstract class SpartanNewTestBase {
     public static ResponseSpecification resSpec;
 
     @BeforeAll
-    public static void init(){
+    public static void init() {
 
-        baseURI="http://44.212.37.188";
+        baseURI = "http://44.212.37.188";
         port = 7000;
-        basePath="/api";
+        basePath = "/api";
         // baseURI+port+basePath
 
 
@@ -35,23 +36,21 @@ public abstract class SpartanNewTestBase {
                         .contentType(ContentType.JSON);
     }
 
-    public static RequestSpecification dynamicReqSpec(String username,String password){
+    public static RequestSpecification dynamicReqSpec(String username, String password) {
 
-        return      given()
-                          .log().all()
-                          .accept(ContentType.JSON)
-                          .auth().basic(username, password);
+        return given()
+                .log().all()
+                .accept(ContentType.JSON)
+                .auth().basic(username, password);
     }
 
 
-    public static ResponseSpecification dynamicResSpec(int statusCode){
+    public static ResponseSpecification dynamicResSpec(int statusCode) {
 
-        return      expect()
-                    .statusCode(statusCode)
-                    .contentType(ContentType.JSON);
+        return expect()
+                .statusCode(statusCode)
+                .contentType(ContentType.JSON);
     }
-
-
 
 
 }
