@@ -1,0 +1,431 @@
+
+
+API DAY 16 
+
+
+
+
+QUESTIONS 
+
+IQ --> What was your challenge with automation and how did you overcome it?
+
+	-> My application depends on many external third party APIs. So when doing testing, if any of the third party services are down, then we cannot perform testing of our api
+	Then I suggested to MOCK third party API calls using Postman mock server. (wiremock)
+	And we added MOCK server for our application where all the backend third party API calls are mocked using postman mock server.
+	We added mock request and responses to match with those external services.
+	Then we were able to test OUR application code in isolation. without interruptions of external apis being down.
+
+
+	SKYSCANNER API  --> TURKISH AIRLINES API 
+	          		--> QATAR AIRLINES API 
+	                --> ........ API 
+
+	                --> MOCK TURKISH AIRLINES API 
+					--> MOCK QATAR AIRLINES API 
+	                --> MOCK ........ API 
+
+1- Initially your API return some dummy data from local storage or in memory databse as API response, Now It's connected to real test database , How can you verify your API request Response is matching data that coming from Real Database ?
+
+	- This is a PERFECT API vs DB Assertions 
+
+	-- DB --
+		- Make a connection 
+		- Connection String --> URL + Credentials 
+		- DB_Util --> create Connection 
+		- String query =Select name,gender,phone from spartans 
+		  where id=1;
+		
+		- DB_Run Query(query);
+		- Get Data and store in a Java Structure 
+
+	-- API --
+
+		- Send request to /spartan/{id} endpoint 
+		- Get response as POJO/Java Structure(Map or List of Map )
+
+    -- COMPARE --
+    	- API vs DB 		
+
+
+
+2- Have you worked with XML response ?
+
+	- Not recently. Most of the time I use responses as JSON and validate them.But I can work with XML responses using with XMLPATH from RestAssured.Also I know how to get attribute values from XML too
+
+
+3- Challenge in API automation:
+	
+	- I was automating one scenario to verify data against UI to API.Then I send to request and get the response.
+	- But in the response I had 20K lines that includes nested JSON Objects or JSON Arrays.
+	- Normally I like to do deserilizaiton and get data to POJO.But this is not the proper way to store data.
+	- Because I wanna get couple of value from specific keys 
+	- So that I decided use JSONPath by writing advanced/custom paths to get related datas 
+
+	  items.findAll {it.region_id=2}.country_name 
+
+	--> Advanced queries/paths --> https://www.james-willett.com/rest-assured-gpath-json/	  
+
+
+4- Lets say you are doing API testing, and you get error 500. What you do next? 
+	
+	500 --> Internal Server Error 
+
+	- It means there is some RUNTIME EXCEPTION/ERROR occured in API Code.That is it gives Internal Server Error.
+	- Maybe database is down or overloaded.So after send request with all detail I can talk with devs to show the issue
+	- If it is a bug I open a bug in Jira or etc ....
+
+
+5- How would we test API  without any documentation, or poor dcoumentations
+
+	- Contact with team members , devs 
+	- Open network tab to see which endpoint are used to feed UI and try into POSTMAN
+	
+	- maybe you will have only json file that includes description of API doc
+
+	Would we be able to look at the API source code to analyze what it is supposed to do as well ?	
+	 - yeah it works.but you should able to understand what they are doing by looking devs code.
+
+--> HOW TO IMPORT SWAGGER DOC TO POSTMAN 
+
+    - Import from Swwagger Link 
+    - Import from .json file 
+
+
+POSTMAN AUTOMATION 
+
+ - Variables
+
+ 		- Global Variables     --> It is accessible from workspace
+ 		- Collection Variables --> It is accessible into realted Collection 
+ 		- Environment Variables -> 
+ 		- Data Varaibles       --> if you do DDT Testing from external file.The data that you are getting called as Data Variable
+ 		- Local Varaibles      -->  
+
+
+      	Initial (Team) --> It will be shard when you share oyur collection with team
+      	Current (Local) -> It is the values of the that you wanna keep as local.It will not be shared with team 
+    	Persist         -> It will assign current values to initial value.
+      	Reset           -> It will assing initial to current values 
+
+
+
+SPARTAN COLLECTION ------------
+
+Link to import --> https://api.postman.com/collections/13495735-e5310f3f-7ee9-42be-841b-838de9fc31d7?access_key=PMAT-01GNFDMKN8AQD3R10DR0FFYNYH
+
+    GET /spartans 
+
+			pm.test("Status code is 200", function () {
+			    pm.response.to.have.status(200);
+			});
+
+
+			/*
+			pm--> It is POSTMAN OBJECT 
+			POSTMAN use chai assertion library 
+			Link --> https://www.chaijs.com/api/bdd/
+			*/
+
+
+			// verify date header is exist 
+			// RESPONSE HEADERS CONTENT TYPE HEADER CHECK 
+			pm.test("Date header is exist", function () {
+			    pm.response.to.have.header("Date");
+			});
+
+			// verfiy Connection header is exist 
+			pm.test("Connection header is exist", function () {
+			    pm.response.to.have.header("Connection");
+			});
+
+			//verfiy content type is application/json 
+			//there is no ready snipet for checking value itself
+			pm.test("Content-Type header is application/json", function () {
+			    pm.response.to.be.header("Content-Type","application/json");
+			});
+
+
+    POST /spartans
+
+    		BODY 
+				{
+				    "name": "{{spartanName}}",
+				    "gender": "Male",
+				    "phone": 7777777777
+				} 
+
+
+
+			PRE-REQUEST 
+
+
+				// we use replace in method to call postman dynmamic variables 
+				var name=pm.variables.replaceIn("{{$randomFirstName}}");
+
+				// Store generate random name into collection variable called as spartanName 
+				// to use while we are sending body and doing assertion against response name
+				pm.collectionVariables.set("spartanName", name);
+
+				console.log(name);
+
+
+			TEST 
+			
+				//verfiy status code is 201 
+				pm.test("Status code is 201", function () {
+				    pm.response.to.have.status(201);
+				});
+
+
+				/*
+				HOW TO VERIFY RESPONSE BODY ? 
+				var is a variable in JS and it is eligible to put all kind data that we are getting as response
+				pm.response.json() --> it will get response as json and store in jsonData OBJECT 
+				*/
+				var jsonData = pm.response.json();
+
+				console.log("Learning POSTMAN Automation");
+				console.log(jsonData);
+				console.log("Success message "+jsonData.success);
+				console.log("ID is "+jsonData.data.id);
+
+
+				// verify success message is  A Spartan is Born!
+				pm.test("Success message is A Spartan is Born!", function () {
+				   // var jsonData = pm.response.json(); --> since we get response previously we dont need it 
+				    pm.expect(jsonData.success).to.eql("A Spartan is Born!");
+				});
+
+				//verify gender is Male
+				pm.test("Verify gender is Male", function () {
+				    pm.expect(jsonData.data.gender).to.eql("Male");
+				});
+
+
+				console.log("ID is "+jsonData.data.id);
+				pm.collectionVariables.set("spartanID", jsonData.data.id);
+
+
+				//verfiy name is same with posted spartan name 
+				console.log(jsonData.data.name);
+
+				var expectedName=pm.collectionVariables.get("spartanName");
+
+
+				pm.test("Names needs to be same with "+expectedName, function () {
+				 
+				    pm.expect(jsonData.data.name).to.eql(expectedName);
+				});
+
+
+	PUT /spartans/id
+		
+
+			BODY 
+
+				{
+				    "name": "Superman",
+				    "gender": "Male",
+				    "phone": 7777777777
+				}			
+
+			TEST 
+
+				pm.test("Status code is 204", function () {
+				    pm.response.to.have.status(204);
+				});
+	
+    DELETE /spartans /id 
+
+				pm.test("Status code is 204", function () {
+				    pm.response.to.have.status(204);
+				});
+
+
+    GET   /spartans/id
+
+    			pm.test("Status code is 404", function () {
+				    pm.response.to.have.status(404);
+				});
+
+				 var jsonData = pm.response.json();
+
+				// verfiy error message is not found 
+				pm.test("Verify error message is Not Found", function () {
+				    pm.expect(jsonData.error).to.eql("Not Found");
+				});
+
+
+
+SPARTAN DDT COLLECTION ------------
+Link to import --> https://api.postman.com/collections/13495735-c355db39-0e00-47de-916c-f103eda42118?access_key=PMAT-01GNFVKS6HW4308X4JNNYZAWHS
+
+    GET /spartans 
+
+			pm.test("Status code is 200", function () {
+			    pm.response.to.have.status(200);
+			});
+
+
+			/*
+			pm--> It is POSTMAN OBJECT 
+			POSTMAN use chai assertion library 
+			Link --> https://www.chaijs.com/api/bdd/
+			*/
+
+
+			// verify date header is exist 
+			// RESPONSE HEADERS CONTENT TYPE HEADER CHECK 
+			pm.test("Date header is exist", function () {
+			    pm.response.to.have.header("Date");
+			});
+
+			// verfiy Connection header is exist 
+			pm.test("Connection header is exist", function () {
+			    pm.response.to.have.header("Connection");
+			});
+
+			//verfiy content type is application/json 
+			//there is no ready snipet for checking value itself
+			pm.test("Content-Type header is application/json", function () {
+			    pm.response.to.be.header("Content-Type","application/json");
+			});
+
+
+    POST /spartans
+
+    		BODY 
+				{
+					    "name": "{{name}}",
+					    "gender": "{{gender}}",
+					    "phone": {{phone}}
+				}
+
+
+
+			TEST 
+			
+				//verfiy status code is 201 
+				pm.test("Status code is 201", function () {
+				    pm.response.to.have.status(201);
+				});
+
+
+				/*
+				HOW TO VERIFY RESPONSE BODY ? 
+				var is a variable in JS and it is eligible to put all kind data that we are getting as response
+				pm.response.json() --> it will get response as json and store in jsonData OBJECT 
+				*/
+				var jsonData = pm.response.json();
+
+				console.log("Learning POSTMAN Automation");
+
+
+
+
+				// verify success message is  A Spartan is Born!
+				pm.test("Success message is A Spartan is Born!", function () {
+				   // var jsonData = pm.response.json(); --> since we get response previously we dont need it 
+				    pm.expect(jsonData.success).to.eql("A Spartan is Born!");
+				});
+
+
+				pm.collectionVariables.set("spartanID", jsonData.data.id);
+
+
+				// ******* DDT TESTING FROM EXTERNAL CSV 
+
+				//verfiy name 
+
+				var expectedName=pm.iterationData.get("name");
+
+				pm.test("Verify name is "+expectedName, function () {
+				    
+				    pm.expect(jsonData.data.name).to.eql(expectedName);
+				});
+
+
+				//verfiy gender 
+
+
+				//verfiy phone 
+
+
+	PUT /spartans/id
+		
+
+			BODY 
+
+				{
+				    "name": "Superman",
+				    "gender": "Male",
+				    "phone": 7777777777
+				}			
+
+			TEST 
+
+				pm.test("Status code is 204", function () {
+				    pm.response.to.have.status(204);
+				});
+	
+    DELETE /spartans /id 
+
+				pm.test("Status code is 204", function () {
+				    pm.response.to.have.status(204);
+				});
+
+
+    GET   /spartans/id
+
+    			pm.test("Status code is 404", function () {
+				    pm.response.to.have.status(404);
+				});
+
+				 var jsonData = pm.response.json();
+
+				// verfiy error message is not found 
+				pm.test("Verify error message is Not Found", function () {
+				    pm.expect(jsonData.error).to.eql("Not Found");
+				});
+
+
+------------------------------------------------
+
+
+
+ - Extracting data from Response to use for another request or for validation
+ - Chaining Request 
+
+ 		After we POST spartan get the ID from response to able to use in following request(PUT/DELETE/GET) as path param 
+ 		So we create one collection variable called as spartanID to store jsonData.data.id from response
+
+ - Automating Request 
+
+ 		Rest of the methods PUT / GET / DELETE will get data from collection Variable spartanID to get/update/delete individual spartans
+
+ - DDT 
+
+ 		We created on Spartan Mock Data csv file that includes name gender phone number as a column names 
+
+ 		While we are sending body we used DATA VARIABLES {{name}} {{gender}} {{phone}} to able to use each value for iteration 
+
+ 		iterationData works like a map so we use iterationData.get("name") to use in test 
+
+ 		iterationData --> it stores each row data 
+
+ 
+
+
+IQ --> How to chain request and response?
+
+		After running any request I am extracting data from response and setting it as collection variable 
+		to use in following request like a path param/query param, maybe for assertions as well 
+
+
+
+
+
+
+
+
+

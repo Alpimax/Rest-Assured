@@ -1,0 +1,226 @@
+
+
+
+API DAY 02 
+
+---------------------
+
+
+Review 
+
+	- How many usages we learnt ? 
+		1- It is middle man between application to talk/communicate each other 
+				- SkyScanner 
+				- Login SkyScanner 
+						- Gmail 
+						- Apple 
+						- Facebook 
+						....
+
+							{
+								"name":"Mike",
+								"email":"msmith@gmail.com"
+								...
+								..
+								.
+							}
+				- CurrencyAPI,WeatherAPI,GoogleMapsAPI
+
+		2- It is design structure.
+		
+				- Monolithic 
+				- Microservices		
+								
+
+
+	- How to test API ?
+
+		- Read document 
+		- Do manual Test 
+				- Postman 
+				- Swagger
+		- Automate 
+				- RestAssured Library 
+
+	- Status Codes ?
+
+		- 2xx --> Success
+			      200,201,204
+		
+		- 4xx --> Client Error
+				  400,401,403,404,406,415
+				  406 --> not Acceptable
+		
+		- 5xx --> Server Side Errors
+				  500,503
+
+	- What is JSON ?
+
+		- JSON --> Document Type 
+
+			   --> JavaScript Object Notation
+
+			   --> Key Value 
+
+			   --> All the keys are String 
+
+			   --> Values can be --> Strign ,Boolean, Null ,JSON Object , Array etc 
+
+			   {
+				   	"id":1,
+				   	"name":"Mike",
+				   	"gender":"Male",
+				   	"phone":123456789
+			   }
+
+
+	- Which tool we used for manual Testing ?
+
+		Postman 
+			--> Manual / Automation 
+			--> Organizing Request
+
+		- What is Swagger ? 
+			--> It is document for APIs to understand how can we send request and what is expected status/contentType
+			--> We can do manual testing but there is no way to organize 	
+
+
+	- Which library we are using to test programatically ?
+
+			--> Rest Assured Library to automate API test 
+			--> JUnit5/TestNG/Junit4/Cucumber-junit/Serenity/Karate .....etc 
+
+
+	- What we need to check from Response ?
+
+			--> STATUS CODE  --> First thing that we need to check 
+			--> HEADER       --> Mostly you are gonna check Content Type ---> JSON 
+			--> BODY/PAYLOAD --> Based on your requirement we are get data from JSON and verify it 
+
+
+
+	POSTMAN VARIABLES 
+
+
+
+		   - Globals     --> It will be available inside your workspace 
+		   - Environment --> If we have more than one env it is ggod you use.It will be available in realted env 
+
+		   					Library1/users
+		   						url: library1.rest....
+		   					Library2/users
+		   						url: library2.rest....
+		   					Library3/users
+		   						url: library3.rest....
+
+
+		   - Collection  --> It is accessible only inside realted collection 
+		   - Data        --> 
+		   - Local       --> 
+
+
+HEADERS 
+
+	- it is additional information about RESPONSE / REQUEST 
+	- It has KEY VALUE structure
+
+
+		- Datatypes   --> JSON / XML others......
+
+				REQUEST 
+
+					Accept       --> application/json --> Hey Api I need to get data as JSON format
+								     application/xml --> Hey Api I need to get data as XML format
+
+
+				RESPONSE 
+					Content Type --> application/json --> Hey Client  I am sending data as JSON format
+								 	 application/xml -->  Hey Client  I am sending dataas XML format	
+
+
+				NOTe --> There can be default contetn type to return for response.In that case weithout providing any ACCEPT 
+						 header it will return whatever they have default.It depends Develeoper desing 				 	 			 
+
+		- Credentials --> Sometimes we need to provide credentails ,token , username,password 
+
+
+PARAMETERS 
+
+	1- PATH PARAMETERS
+
+		- It is PART OF  URL 
+		- It will return single resources from resources
+
+					{
+					    "id": 3,
+					    "name": "Fidole",
+					    "gender": "Male",
+					    "phone": 6105035231
+					}
+		- with typing : into postman Path Variables will appear 
+			
+			Key    id 
+			Value  3 
+
+			{{spartanUrl}}/api/spartans/3 
+			
+		- {{spartanUrl}}/api/spartans/{id} 
+			{id} --> means there is path parameters 
+
+	2- QUERY PARAMETERS 
+
+		- It is NOT part of the URL 
+		baseurl/api/spartans/search
+		? --> END OF THE URL 
+		nameContains=f
+		&
+		gender=Female
+
+		- it will filter the results 
+
+
+		https://www.cars.com/shopping results/
+		?  --> END OF THE URL 
+		stock_type=all
+		&
+		makes%5B%5D=audi
+		&
+		models%5B%5D=audi-a3
+		&
+		list_price_max=20000
+		&
+		maximum_distance=50
+		&
+		zip=
+
+
+		
+What is RestAssured.baseURI ? 
+
+	-- It is static field from RestAssured to use in all request
+	-- When we define into @BeforeAll (same with BeforeClass from TestNG)
+	   RestAssured is smart enough to understand URL from here 
+
+
+What is @DisplayName ? 
+
+	-- It comes from JUnit5 to make methods/testcases name readable
+	-- There is no other FUNC 
+
+
+Static imports to make code readable 
+
+	import static io.restassured.RestAssured.given;
+	import static org.junit.jupiter.api.Assertions.*;
+
+
+
+
+
+
+
+
+
+
+
+

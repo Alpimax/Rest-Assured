@@ -1,0 +1,380 @@
+
+API DAY 08 
+
+AUTHENTICATION and AUTHORIZATION
+
+ - AUTHENTICATION ---> Who we are.Appliction needs to recognize your credentials to access API/Website
+
+ - AUTHORIZATION --->  Which rights we have.Based on our role backend developer will decide which actions we can or 
+ 					   which pages are eligible to see 
+
+
+
+ ZOOM CLASSES 
+
+	AUTHENTICATION --> Are those people can join class ? Do we know who they are ? 
+	 	
+	 	Public User --> 401 --> Unauthorized User --> You can not join
+	 	Students    --> 2** --> Success
+	 	Teachers 	--> 2** --> Success 
+
+	AUTHORIZATION --> For example if those want to share their screen / Unmute themselves etc 
+	 	
+	 	Students    --> 403 --> Forbidden --> I know who you are but sorry you cant do this actions 
+	 	Teachers 	--> 2** --> Success 			    
+
+
+ CANVAS / LMS  
+
+ 	Login  --> AUTHENTICATION 
+
+		Public User               --> 401 --> Unauthorized User --> You can not join
+	 	Current Batch Students    --> 2** --> Success
+	 	Teachers 	              --> 2** --> Success
+
+
+	--> AUTHORIZATION 
+
+
+	Quiz   
+ 		Current Batch Students    --> 2** --> Success 
+	 	Teachers 	              --> 2** --> Success
+
+
+ 	Add New Module  
+ 		Current Batch Students    --> 403 --> Frobidden -->I know who you are but sorry you cant do this actions 
+	 	Teachers 	              --> 2** --> Success
+
+
+    Delete New Module   
+    	Current Batch Students    --> 403 --> Frobidden -->I know who you are but sorry you cant do this actions 
+	 	Teachers 	              --> 2** --> Success 
+
+
+
+SPARTAN AUTH 
+
+	
+	YOUR IP:7000 --> It is SPARTAN application with atuhorization  
+
+
+	Roles 
+
+				     USERNAME           PASSWORD
+		ADMIN  -->    admin               admin
+		EDITOR -->    editor              editor
+		USER   -->    user                user
+
+
+		Role Based Control Test --> RBAC 
+
+			ADMIN  -->  GET  POST PUT PATCH  DELETE   
+			EDITOR -->  GET  POST PUT PATCH   403  
+			USER   -->  GET  403  403  403    403
+			GUEST  -->  401  401  401  401    401  
+
+
+
+ - We try to GET all users with GUEST USER (NO CREDENTIALS ) in POSTMAN then as a RESPONSE we got 
+ 		401 --> UnAuthorized USER --> Wrong Credentail, Empty Credentials 
+
+ - We added credentils through AUTHORIZATION tab by choosing BASIC AUTH as user/user 
+ 		200 --> Success  
+
+ - We changed Request type to DELETE to delete one spartan with USER 
+ 		403 --> Forbidden --> User dont have rgiht to delete spartan infromation
+
+ - To delete spartan we changed credentials for admin/admin.After clicked SEND button 
+ 		204 --> no Content --> It means it is deleted  					
+
+
+=> BASIC AUTH ====================
+
+	 - It is rarely recommend cause of security issues 
+	 - This is most straightforward and easiest one to authentication
+	 - We can send username and password through request header 
+	 	- We out credentials as USER/USER and behind the scene credentials are encoded with Base64 to send via 
+	 	  Authorization Header 
+
+	EXAMPLE --> Basic dXNlcjp1c2Vy 	  
+
+		dXNlcjp1c2Vy --> It is encryted format of credentials 
+
+
+
+
+----------------------------------------------------------------------------------------
+
+BOOKIT 
+
+UI             --> http://qa.bookit.cydeo.com/sign-in
+API DOC(Slate) --> https://cybertek-reservation-api-docs.herokuapp.com/#get-all-rooms
+BASEURI        --> api.qa.bookit.cydeo.com 
+
+
+--- CREDENTIALS ---
+teacher_email	blyst6@si.edu
+teacher_password	barbabaslyst
+team_member_email	raymond@cydeo.com
+team_member_password	abs123
+team_leader_email	lfinnisz@yolasite.com
+team_leader_password	lissiefinnis
+
+
+-> This application has different role 
+	- teacher
+	- team lead 
+	- team member
+
+-> This application 3 layer 
+
+	-> UI  		 --> Presentation Layer 
+	-> API 		 --> Businees Layer 
+	-> Database  --> Data Layer
+
+
+-> It is CYDEO internal application to reserve room for study purpose 
+
+	  Campus 
+	  		VA --> 2 parts/sides (it has multiple rooms)
+	  				-> light side 
+	  						- room1
+	  						- room2
+	  						....
+	  				-> dark side 
+	  						- room1
+	  						- room2
+	  						....
+		
+
+	  		IL --> 1 part 
+	  				- room1
+	  				- room2
+	  				....
+		
+
+
+--> LOGIN UI --> Open UI --> Put Credentials --> Click Login --> We are gonna login and see Landing Page--> It means we logged 							in successfully
+
+			 --> If credentials are wrong it will give error message
+				 
+--> API --> To login API we need to one /sign-in  or /login endpoint to send credentials.After we send credentials Authentication Server will generate token for us to reuse for each request that we wanna get 
+
+
+
+IN MY EXPERIENCE 
+
+	- There needs to be one dedicated endpoint ot send our credentials to login 
+			/login
+			/sign-in
+			/sign
+
+	- After login with valid credentails it will return 
+
+		{
+		"accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxMTMxMiIsImF1ZCI6InN0dWRlbnQtdGVhbS1sZWFkZXIifQ.ZIHJuDh19eLga3bLP7udnvNtEA0DM_W1H67ah2Zu3Lc"
+		}		
+
+	- It will generate access TOKEN based on user role including with their scope
+
+		CANVAS / LMS
+			
+			student 
+					/join 
+					/api_module
+					/java_module
+
+		    instructor
+		    		/add_new_module
+		    		/publish_quiz
+
+
+    - After we get access Token we can send request for each endpoint that we have right to ask 
+
+Who will arrange scopes ? 
+
+	- Developer will design it 
+
+
+
+What is difference refresh / access Token ? 
+
+-   The lifetime of a refresh token is much longer compared to the lifetime of an access token. Refresh tokens can also expire but are quiet long-lived. When current access tokens expire or become invalid, the authorization server provides refresh tokens to the client to obtain new access token
+
+
+------------ JWT JSON WEB TOKEN ----------
+We 
+
+    {
+        "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxMTMxMiIsImF1ZCI6InN0dWRlbnQtdGVhbS1sZWFkZXIifQ.ZIHJuDh19eLga3bLP7udnvNtEA0DM_W1H67ah2Zu3Lc
+    }
+
+    if we look at access token , it has 3 parts:
+
+    1) algorithm for encoding/decoding
+    2) json data containing user info  --> it defines scope of user 
+    3) signature to verify authenticity of the token
+
+
+=> TOKEN BASED APPLICATIONS  ====================
+
+	- BEARER TOKEN 
+            BEARER authentication (also called token authentication) is an HTTP authentication
+            - The bearer token allowing access to a certain resource or URL, usually generated by the server in response to a login request.
+            - The client must send this token in the Authorization header when making requests to protected resources.
+
+
+            key = Authorization
+            value = Bearer
+            eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1Mzc2IiwiYXVkIjoic3R1ZGVudC10ZWFtLWx
+            lYWRlciJ9.DoFI744aMLxUaf0GcjVOEDkJ3Wh7RlKDx-TYp8_sJpU
+
+
+
+-- What we did before break ? 
+
+	- We read Bookit docs (slate)
+	- First we ready instroduction to see what it is expecting 
+		- I need always token if you wanna send request
+	- Authentication
+		
+		- Use /sign endpoint 
+			Query params 
+				- Email 
+				- Password 
+		- That s why we prepared one request to get token from /sign endpoint 
+		
+		- We got accessToken --> eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1Mzc2IiwiYXVkIjoic3R1ZGVudC10ZWFtLWx
+            lYWRlciJ9.DoFI744aMLxUaf0GcjVOEDkJ3Wh7RlKDx-TYp8_sJpU
+
+        - In this accessToken it will generate scope information as well to see which rights we to ask API
+    
+
+    - ALL OTHER REQUEST SHOULD FOLLOW STRUCTURE  
+
+    	Authorization --> Bearer eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1Mzc2IiwiYXVkIjoic3R1ZGVudC10ZWFtLWx
+            lYWRlciJ9.DoFI744aMLxUaf0GcjVOEDkJ3Wh7RlKDx-TYp8_sJpU
+
+
+    - INTELLIJ 
+
+    	Response response =given()
+    			.header("Authorization","Bearer eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1Mzc2IiwiYXVkIjoic3R1ZGVudC10ZWFtLWx
+                lYWRlciJ9.DoFI744aMLxUaf0GcjVOEDkJ3Wh7RlKDx-TYp8_sJpU") 
+            	.when().get("/api/campuses").preettyPeek();             		
+
+
+
+
+
+-- IQ --> What is difference between 401 and 403 ? 
+
+	401 --> Unauthorized user --> Wrong Credentials,Empty Credentials etc 
+	403 --> Forbidden --> The use that you provide does not have rights to ask API this REQUEST 
+
+
+-- what is the diff between, 
+
+		given().auth().basic("username", "password") --> This type of basic auth.It is simplest way to put security
+
+			=> BASIC AUTH ====================
+
+			 - It is rarely recommend cause of security issues 
+			 - This is most straightforward and easiest one to authentication
+			 - We can send username and password through request header 
+			 	- We out credentials as USER/USER and behind the scene credentials are encoded with Base64 to send via 
+			 	  Authorization Header 
+
+			EXAMPLE --> Basic dXNlcjp1c2Vy 	  
+
+				dXNlcjp1c2Vy --> It is encryted format of credentials 
+
+		given().header("Authorization", "Bearer "+accessToken)
+
+		   - BEARER TOKEN 
+            BEARER authentication (also called token authentication) is an HTTP authentication
+            - The bearer token allowing access to a certain resource or URL, usually generated by the server in response to a login request.
+            - The client must send this token in the Authorization header when making requests to protected resources.
+
+
+            key = Authorization
+            value = Bearer
+            eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1Mzc2IiwiYXVkIjoic3R1ZGVudC10ZWFtLWx
+            lYWRlciJ9.DoFI744aMLxUaf0GcjVOEDkJ3Wh7RlKDx-TYp8_sJpU
+
+
+
+-------------------------------------------
+
+ Q - Are we gonna use alwyas query param  to (get token) or introduce ourself  ? 
+
+ 	- Depends on documentation 
+
+ 		- Query Param --> GET 
+ 		- JSON BODY   --> POST 
+ 	
+
+Q - What if there is no document ? 
+
+	- Ask your peers 
+	- Ask your dev 
+	- Check Network Tab 
+
+
+
+-----------------------------------------------
+
+  How to use Network Tab? 
+
+  	- If API feeding UI in that we can easily check Network tab to which request we are sending 
+
+
+  	- INSPECT --> NETWORK --> REQUEST 
+
+  		- We clicked over me and it show us /api/users/me endpoint request.After API gives this info to UI 
+  		   UI will only display into realted fileds 
+  		   ,
+  		   {"id":11312,"firstName":"Lissie","lastName":"Finnis","role":"student-team-leader"}
+
+
+-----------------------------------------------
+
+What is CURL ? 
+
+ - Command Line Tool /library for transfering data with URLS 
+
+
+-----------------------------------------------------
+
+HOW TO RUN CURL IN TERMINAL/POWERSHELL ? 
+
+ - Copy any CURL from SWAGGER / UI 
+ - Paste into terminal and HIT the enter 
+ - It will send request like we did in POSTMAN / INTELLIJ 
+ - Display RESPONSE In here 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

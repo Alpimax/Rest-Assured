@@ -1,0 +1,278 @@
+
+API DAY 03 
+
+
+Summmary 
+
+
+	REQUEST --> Client sent request 
+
+		- HTTP METHODS --> GET / POST / PUT / PATCH / DELETE  ......(There is more but we dont care)
+		- API DOC 	
+				- BASE URL  --> The part of the URL which same for all request/endpoint
+					Ex-> {{spartanURL}}
+				- ENDPOINTS --> Specific resource
+					Ex-> {{spartanURL}}/endpoint
+
+			Where we ned to get these infos ?
+				- Each application has their own swagger/website/pdf doc .....
+				- Just follow document to sent request 
+				- API Dev will prepare it 
+				- If there is no doc 
+					- Ask developers
+					- Team Mates 
+					- Do Knowledge Tranfer Meeting to get info 
+
+
+		- HEADER --> Additional information.It is KEY=VALUE format		
+
+
+			- Accept , application/json --> Hey API Please send me resposne in application/json		
+			- Accept , application/xml --> Hey API Please send me resposne in application/xml
+
+			- Credentials --> We are gona talk later on 
+
+
+		- PARAMETERS --> used to filter response 
+
+			- Path Param --> It is part of URL.We are gonna to get single resource  
+					
+				Ex 1 -> {{spartanURL}}/endpoint/{id}
+					 {id} --> it is path param 
+
+				Ex 2 -> {{spartanURL}}/endpoint/{id}/endpoint/{id}
+					 {id} --> it is path param 	 
+
+				-> with the help of putting : it will appear in POSTMAN as PAth Variables 
+
+
+			- Query Param --> It is NOT part of URL.We are gonna use to filter resource 
+				
+				Ex 1 -> {{apiURL}}/endpoint?param1=value1&param2=value2
+
+					param1 and param2 are query params
+					value1 and value2 are values of these parameters
+
+					? --> end of the URL and query params starting 
+					& --> seperator between key and values 
+
+
+
+				queryParam("q", "{"region_id":2}")   can you tell me what is the q stands for please?
+
+					 q --> is key 
+					 {"region_id":2} --> values
+
+
+		- BODY/PAYLOAD --> We are touch this later on (PUT - POST - PATCH )
+
+
+	RESPONSE --> 
+
+		- STATUS CODE --> indicate status of response (success or failure)
+
+			- First thing that you need to check after getting response 
+
+				- Getting 200 or any other expected status code does not guarantee the payload has expected data 
+
+			- 2** --> Success
+					  200 --> Success 
+			- 4** --> Client Error
+					  404 --> Not Found --> The request resource is not found 
+					  406 --> Not acceptable --> While we are getting spesific spartan if you wanna get response as xml for 	format.It will not accept this request from client and return 406 Not acceptable 
+
+			- 5** --> Server Side issues 	
+
+
+	    - HEADER --> Additonal information 
+
+	    	Content Type , application/json --> Hey Client I am sending data in application/json format	
+	    	Content Type , application/xml --> Hey Client I am sending data in application/xml format	
+
+	    	Date --> Just verify to see it is exist 
+	    			response.headers().hasHeaderWithName("Date") --> return type is boolean
+	    	Content-Length	
+	    	......
+	    	.....
+	    	....
+	    	...
+	    	..
+	    	.
+
+	     - Response BODY / PAYLOAD 
+	     
+	        - CONTAINS --> NOT SUGGESTED - DOES NOT MAKE GUARANTEE 
+
+	        	{
+	        		"id":4,
+	        		"name":"Fidole",
+	        		"phone":12346789
+
+	        	}
+
+	        	response.body().asString() --> String	
+	        	response.body().asString().contains("Fidole") --> it will return boolean 
+
+
+
+=====================================
+ EC2 
+
+ 	Spartans 		--8000
+ 	Spartans Auth   --7000
+ 	Jenkins 		--8081
+ 	HR ORDS 		--1000
+ 	Oracle Database --1521 
+
+
+
+HR --> It is ready application that you clone form CYDEO AMI into your EC2 machine 
+
+	Database --> We dalready used in Databse Testing 
+	API      --> Now we are using 
+
+
+SPARTANS -->  It is ready application that you clone form CYDEO AMI into your EC2 machine 
+
+	UI       --> 
+	Database --> 
+	API      --> Now we are using 
+
+
+- Fruit API --> https://api.predic8.de/shop/docs
+- PetStore API --> https://petstore3.swagger.io/
+............
+..........	
+
+=====================================
+
+What's the difference between URL and URI and URN ?
+
+URI includes --> URL(Locator) and URN(Name) 
+
+ - For now you can say both same 
+
+
+ =====================================
+
+Question ---> Where do we get data to our QA env? Devs providing us or are we copying it fro somewhere?
+	It is not for only API. You can generate it through different websites to add test data in you environment.Bu to do that you should have access to able to add new data in env.
+
+	- If you have access API requests to add new data , you can do it through API 
+	- If you have access Database  to add new data , you can do it through Database 
+
+	Of course you should coordinate with team
+	https://www.mockaroo.com/
+
+ =====================================
+
+
+ What is the difference between  getContentType() and contentType() and response.header("Content-Type")?
+ What is the difference between  getStatusCode() and statusCode()?
+
+ 		SAME 
+
+ 	assertEquals(HttpStatus.SC_OK,response.statusCode())
+ 	assertEquals(200,response.statusCode())
+
+ 		SAME 
+
+
+    assertEquals("application/json",response.contentType())
+    assertEquals(ContentType.JSON.toString(),response.contentType())
+
+    	SAME 
+
+
+ =====================================
+
+
+
+assertTrue(response.body().asString().contains("Female"));
+    We are just doing exercise to verify something in Response.This is not the proper to verify 
+    all Spartans genders are Female.To do that we are gonna learn differetn method to get spesific data
+               
+=====================================
+
+
+-- HOW TO READ DATA FROM JSON FILE TO MAKE VERIFICATION 
+
+
+- CONTAINS --> NOT SUGGESTED - DOES NOT MAKE GUARANTEE 
+
+	        	{
+	        		"id":4,
+	        		"name":"Fidole",
+	        		"phone":12346789
+
+	        	}
+
+	        	response.body().asString() --> String	
+	        	response.body().asString().contains("Fidole") --> it will return boolean 
+
+	This is not the effiecient way 
+	
+
+1.Path method 
+
+
+	GPATH --> It is the syntax to get specific data from JSON 
+
+		- GPath is a path expression language integrated into Groovy which allows parts of nested structured data to be identified.
+	
+	response.path("pathOFKeyFromResponse") ---> it will return value that is stored in related key
+	
+	Response response=get("/spartans");
+
+				{
+	        		"id":4,
+	        		"name":"Fidole",
+	        		"gender":"Male"
+	        		"phone":12346789
+
+	        	}
+
+	response.path("id") ---> 4
+	response.path("name") ---> Fidole
+	response.path("gender") --> Male
+	response.path("phone") --> 12346789	 
+
+
+
+
+
+
+
+=====================
+
+it gives all employees Why ?
+
+	{{hr}}/employees/?first_name=Jose Manuel
+
+	- Who defined first_name as Query Parameter ? 
+
+		there is no definition to use in swagger firstname 
+		as Query Param.That is why it is not accepted
+
+
+=====================
+
+
+
+
+
+
+
+
+
+
+
+
+
+Today Plan 
+	- Parameters
+	     - PathParam
+	     - QueryParam
+	- Getting data from response body 
+		1- Response.path()
+		2- JsonPath

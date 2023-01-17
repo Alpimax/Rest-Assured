@@ -1,0 +1,68 @@
+
+HOMEWORK 01 
+
+
+NOTE --> Do all them in Postman MANUALLY 
+
+	Create variable in POSTMAN as hrUrl 
+
+		Steps 
+			- Click eye icon from top of right 
+			- Click Edit Button for Global Variables 
+			- Give name called as hrUrl
+			- Fill initial/current field with 
+					YOUR_EC2_IP:1000/ords/hr
+			- Save it 
+			
+	Create new Collection called as Homework01
+
+
+		How to create Request ?
+			
+			- Create Request 
+			- Call variable with {{hrUrl}}
+			- Add endpoint /employees 
+			- Select GET Request 
+			- Save it 
+			- Send it 
+
+			REQUEST EX --> {{hrUrl}}/employees 
+					
+
+
+
+IMPLEMENT IN REST ASSURED FRAMEWORK 
+	- with using 
+
+		@BeforeAll
+		public static void init(){
+
+			RestAssured.baseURI="http://YOURIP:1000";
+
+		}
+
+
+
+
+Q1:
+- Given accept type is Json
+- When users sends request to /countries/US
+- Then status code is 200
+- And Content - Type is application/json
+- And response contains United States of America
+
+
+Q2:
+- Given accept type is Json
+- When users sends request to /employees/1
+- Then status code is 404
+
+Q3:
+- Given accept type is Json
+- When users sends request to /regions/1
+- Then status code is 200
+- And Content - Type is application/json
+- And response contains Europe
+- And header should contains Date
+- And Transfer-Encoding should be chunked
+

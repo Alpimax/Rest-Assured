@@ -1,0 +1,278 @@
+API DAY 05 
+
+
+==========================================
+
+-- HOW TO READ DATA FROM JSON FILE TO MAKE VERIFICATION 
+
+===========================================
+- CONTAINS --> NOT SUGGESTED - DOES NOT MAKE GUARANTEE 
+
+	        	{
+	        		"id":4,
+	        		"name":"Fidole",
+	        		"phone":12346789
+
+	        	}
+
+	        	response.body().asString() --> String	
+	        	response.body().asString().contains("Fidole") --> it will return boolean 
+
+	This is not the effiecient way 
+	
+
+==========================================
+	GPATH --> It is the syntax to get specific data from JSON 
+
+		- GPath is a path expression language integrated into Groovy which allows parts of nested structured data to be identified.
+
+		- Link -->http://docs.groovy-lang.org/latest/html/documentation/#_gpath
+
+==========================================
+
+    1.Path method 
+
+	
+	response.path("pathOFKeyFromResponse") ---> it will return value that is stored in related key
+	
+	Response response=get("/spartans");
+
+				{
+	        		"id":4,
+	        		"name":"Fidole",
+	        		"gender":"Male"
+	        		"phone":12346789
+
+	        	}
+
+	response.path("id") ---> 4
+	response.path("name") ---> Fidole
+	response.path("gender") --> Male
+	response.path("phone") --> 12346789	 
+
+==========================================
+
+    2.JsonPath method 
+
+    	-- there is no difference about using Gpath syntax with path(method)
+    	-- It is similar way with path() method to navigate into JSON response 
+    	-- It has couple of methods to make it readable and return required type of data 
+
+    			- getString
+    			- getInt
+    			- getLong
+    			- getList
+    			- getObject
+    			.....
+    			...
+    			..
+
+
+    ====== items.findAll {it.region_id==2}.country_name
+
+    	items ---> it is key for the array that we are getting from response 
+
+    		.findAll --> it is method tthat comes from Gpath to find all matching data 
+
+    			{it.region_id==2} --> this is the condition that we are looking for to filter 
+
+    			  it --> iterator--> it will check each eleemnt from the array 
+
+    			  	after filter array of Json Object will prepare List of data based on your return type 
+
+
+    	Ex --> 
+    			List<String> countryNamesWithID2 = jp.getList("items.findAll {it.region_id==2}.country_name");
+
+    				 sout(countryNamesWithID2)---> [Argentina, Brazil, Canada, Mexico, United States of America]
+
+
+
+    -- How to create JSONPATH Object
+
+    -------
+     	Response response=get("/spartans");
+
+     	JsonPath jsonpath=response.jsonPath();
+
+    -------
+
+		JsonPath jsonpath= get("/spartans").jsonPath();
+
+    --------
+
+====================================    
+
+      
+    3.HamCrest Matchers
+
+    	- It is assertion library to increase readability and to make assertion after then() section of API Request 
+    	- Do we need to any dependcy ? 
+    		- No, it comes with Rest Assured 
+
+    	- We will use Hamcrest Matchers method after then section	
+
+    	- In any framework if you wanna implement your testing with hamcrest you can add individually related dependecy to work on it 	
+
+
+    		........
+    		then()
+    				.statusCode(200)
+    				.contentType("application/json")
+    				.header("Date",notNullValue())
+    				.body("id",is(15),
+    					 "name",is("Meta"))
+    				.body("gender","Female")
+    				.body("phone",123456743);
+
+    	Link --> http://hamcrest.org/JavaHamcrest/javadoc/2.2/org/hamcrest/Matchers.html			
+
+
+====================================    
+
+
+    4.Deserilization ----> Converting JSON to JAVA Collections (List,Map etc .....)
+
+
+
+
+
+
+
+
+
+
+-------REQ / RESPONSE LOG ---------
+
+        REQUEST
+            given().log().all() --> it will give all inforamtion anout your request (path/query params , URI , body etc )
+                  .method()
+                  .uri()
+                  .parameters() ......
+        RESPONSE
+
+             then().log().all() --> it will give all response information
+                         .ifValidationFails() --> it will print all response if one of the validation fails 
+                                
+
+------------------------------------
+
+
+ // HOW TO PRINT RESPONSE BODY
+     
+            - response.prettyPrint() (String) ---> it is printing response body into screen
+
+            - response.prettyPeek() (Response) ---> it will print response into screen, returns Response   and allows us to continue chaining
+
+    
+
+------------------------------------
+
+// HOW TO EXTRACT DATA AFTER DOING VALIDATION WITH HAMCREST ?
+       
+        - extract() --> method will help us to get data  as 
+        
+                response()
+                  OR 
+                jsonPath()
+
+                after doing verification
+                
+        - Why we need to extract ? 
+            - Assume that we are gonna do verification against UI/DB.In that case I need to get data from API after doing verification
+            - So we need to store sometimes List of names / ids etc to check 
+            - That is why we need to initilaize as Response or JSonPAth (Since we know how to get data through this objects )
+               to get realted data taht you wanna verfiy 
+ 
+
+
+        - For example 
+
+        		- While we are creating one spartan, id will be generated from  database as Primary Key.
+        		- if the API return you newly generated spartan information with ID we need to extract ID from response 
+
+        			HOW ? 
+				    ----------------
+
+        			int spartanID =	.....
+			        				.....
+			        				then()
+			        					.statusCode()
+			        					...
+			        					.....
+			        					.....
+			        					...
+			        					....
+			        					extract().response().jsonPath().getInt("id"); 
+				    ----------------
+
+			        Response response =	.....
+				        				.....
+				        				then()
+				        					.statusCode()
+				        					...
+				        					.....
+				        					.....
+				        					...
+				        					....
+				        					extract().response(); 
+
+				    int spartanID=response.path("id");
+				    ----------------
+				     JsonPath jsonPath =	.....
+				        				.....
+				        				then()
+				        					.statusCode()
+				        					...
+				        					.....
+				        					.....
+				        					...
+				        					....
+				        					extract().response().jsonPath(); 
+
+				    int spartanID=rjsonPath.getInt("id");
+
+			        To check against Database 
+
+			        - We will write a query with newly generated spartan ID to find 
+
+			        - Make an assertion 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

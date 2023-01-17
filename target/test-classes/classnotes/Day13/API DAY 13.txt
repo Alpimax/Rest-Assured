@@ -1,0 +1,196 @@
+
+
+API DAY 13 
+
+
+ -- Response and Request Specification 
+
+ -- Serenity Framework 
+
+
+
+
+
+ ------------------------------------
+
+
+   IP:7000/api/spartans
+   IP:7000/api/spartans/{id}
+
+
+   OLD VERSION 
+   		baseURI --> IP:7000
+
+   NEW VERSION 
+   
+   		baseURI --> IP 
+   		port    --> 7000
+   		basePath--> /api		
+
+
+
+------------------------------------- 
+
+
+REQUEST SPEC 
+	- it is what we requesting from API Call
+	- We can put there 
+
+			accept()
+			contentType()
+			.auth().basic()
+			.....
+			.header()
+			.pathParam()
+			.queryParam()
+			.and() --->syntatic sugars 
+
+
+
+RESPONSE SPEC
+
+	- it is what we are expecting from API call
+	- We can put theres 
+
+			contentType()
+			statusCode()
+			header()
+			body()
+
+
+-----------------------------------------------
+
+
+NEW WAY --> That we are using and also we wil continue to use in future 
+			It is what we learnt so far 
+
+
+			- Assertions after then() --> will work as HARD ASSERT 
+
+
+OLD WAY --> It is the usage to specify resposne spec after 
+
+			expect() method 
+
+			- Assertions after expect() --> will work as SOFT ASSERT 
+
+
+-----------------------------------------------
+
+
+-------------- FRAMEWORKS -----------------------
+
+  Cucumber --> 3 layers --> UI + API + DB  
+  		
+  		 API --> We did create one APIStepDefs and put all steps into that class related with API 
+
+  		 DB  --> Custom hooks are added to manage DB connection.With the help of DB_Util we are able to conection via Hooks
+
+  		 UI  --> You did in automation class.If you wanna manage your driver based on scenario it is still doable with custom 			hooks 
+
+  		- Can we seperate feature files ? 
+  		
+  			  resources 
+  			  		api
+  			  		   -feature1
+  			  		   -feature2 
+  			  		ui
+  			  		   -feature1
+  			  		   -feature2 
+  			  	    db	
+  			  	       -feature1
+  			  		   -feature2    
+
+  			  		test-data
+  			  		   - userInfo.csv	
+
+  			  		schemas
+  			  		   - SingleSpartanSchema.json	   
+
+  	    - Do we have report ? 
+
+  	    	- YES we have it is cucumber report 
+
+  	    			- HTML 
+  	    			- JSON 
+
+
+----- ONLY BACKEND FRAMEWORK ------
+
+
+	JUnit5   ( API - DB ) 
+		- DDT 
+		    - Parameterized Tests 
+
+
+    - Report 
+    	- We are gonna use Serenity + Junit5 to get report in detail 
+
+
+
+    Is Serenity framework to get only report ? 
+    	- NO.It has many futures.We are gonna use and integrate to JUnit5 to get report ONLY 
+
+
+    SERENITY can be used ? 
+    	- Mobile 
+    	- UI 
+    	- DB
+    	- API 	
+
+
+
+NOTE --> BEFORE RUNNING EACH mvn verify we should use mvn clean 
+
+		- mvn clean 
+		- mvn verify 
+
+		- mvn clean verify 
+
+
+ ---- SPARTAN ADMIN TEST 
+
+  PURE REST ASSURED
+
+ 	- We created regular API Request by using RestAssured.given() for ALL SPARTANS 
+
+ 	- We added @SerenityTest at class level to tell Serenity it is Serenity Test 
+
+ 	- After that to get report as defined into document we used MVN VERIFY 
+
+ 	- At the end of the console it shared one report link 
+
+ 	- By clicking link we able to see report 
+
+
+   SERENITY REST 
+
+
+
+
+    - lastResponse(); --> response --> Serenity Rest will generate after sending request and store resposne information  without saving in a variable.you need to import it from serenity 
+    	-import static net.serenitybdd.rest.SerenityRest.lastResponse;
+
+
+    - ValidatableResponse --> then() return Validatable response to validate our expected result 
+    			
+    			then().statusCode(200).....  r 	
+
+
+    // ASSERTIONS IN SERENITY WAY
+       
+            Ensure.that --> it is method that comes from Serenity to put asssertions into Serenity Report in a good way
+                             Descriptionn --> will appear into report just like a step information
+                             vRes->vRes.statusCode(200) --> it will validate resposne based on provided assertions
+
+            - It works like SOFT ASSERTION and if any steps are failing it will check all assertion and put inside Serenity REPORT 
+      
+
+Q --> should we copy paste the link and send to manager? Or take a picture. Or to add to jira is enough really I don’t know
+
+
+
+
+
+
+

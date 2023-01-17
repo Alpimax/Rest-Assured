@@ -1,0 +1,442 @@
+
+
+API DAY 01 
+
+ 
+
+What we learnt so far ? 
+
+ 	- Java 
+ 	- Selenium -->   UI  --> Presentation Layer 
+ 	- CI/CD    -->  Journey of application from Gİthub to end users 
+	- SQL/JDBC -->  Backend Testing 
+	- API      -->  Application Programming Interface  
+
+
+Jobs 
+
+	- UI Autamation 
+	- Backend (Database+API)
+	- UI + Backend 
+
+
+
+We have 3 main parts for API 
+
+	- Basics API (it is for finding API jobs --> 8-10 )
+	- Advanced API (it will help you survive in job)
+	- Postman automation 
+
+----------------------		
+
+
+What is an API ? 
+
+- it is a contract between application to communicate each other.Assume that we are trying get data from A application as B application.A application has their own rules to communicate with it.This rules written in one document which called as SWAGGER
+
+- Based on REQUEST from B application A application will give RESPONSE 
+
+- REQUEST and RESPONSES 
+
+- Normally we have physical cables to connect 2 computer.We can think API is coonnector between application.
+
+- APIs are platform independent and applications that build with different techonologies can communicate each other 
+
+- There 2 way of usage APIs 
+
+
+1 - Communication between each other 
+
+
+	1.1 - Skyscanner 
+
+			In our example as a user we want to available flight based on our need than SKYSCANNER BAckend (API) will ask other providers(Turkish Airlines,Qatar Airways.....) This providers will ask their databse for available flight and they will get reposne from their datanbase after arranging this information (json,xml ) they will send to Skyscanner
+
+			Skysanner will get all data from differetn providers and send to the UI for displaying USERS 
+
+
+
+			FLOW 
+
+				---- UI ----
+					https://www.skyscanner.com/transport/flights/wasa/ista/221206/221213/?
+					adults=2&
+					adultsv2=2&
+					cabinclass=economy&
+					children=0&
+					childrenv2=1&
+					destinationentityid=27542903&
+					inboundaltsenabled=false&
+					infants=1&
+					originentityid=27538424&
+					outboundaltsenabled=false&
+					preferdirects=false&
+					ref=home&
+					rtn=1
+
+
+				--- SKYSCANNER BACKEND ---
+
+
+					REQUEST 
+
+						it will send all request to do flight companies 
+
+							TURKISH AIRLINES ---> Database  (MySQL) (Pyhton)
+
+
+							QATAR AIRWAYS ---> Database     (MongoDB) (Java)
+
+
+							DELTA AIRLINES ---> Database    (Oracle)
+
+					RESPONSE 
+							
+
+							TURKISH AIRLINES ---> Database  (MySQL) (Pyhton)
+								{
+									"price":760,
+									"company_name":"Turkish Arilines",
+									"departureDate":"",
+									"arrivalDate":"",
+									"origin":"IST",
+									"destination":"JFK"
+								}
+
+							QATAR AIRWAYS ---> Database     (MongoDB) (Java)
+								{
+									"price":700,
+									"company_name":"QATAR Arilines",
+									"departureDate":"",
+									"arrivalDate":"",
+									"origin":"IST",
+									"destination":"JFK"
+								}
+
+
+							DELTA AIRLINES ---> Database    (Oracle)
+
+								{
+									"price":750,
+									"company_name":"Arilines",
+									"departureDate":"",
+									"arrivalDate":"",
+									"origin":"IST",
+									"destination":"JFK"
+								}
+					
+
+						After arranging that information Skyscanner will send to SkyScanner UI 			
+
+					--- SKYSCANNER UI  ---
+
+						will only display data 
+
+    1.2 - CurrencyAPI, WeatherAPI, GoogleMaps API 
+
+    	 CurrencyAPI, WeatherAPI they gathering all information about their services whenever other application needs this infor they will sell or give free plan (with limited usage).With the help of this service document(SWAGGER) applications(BBC,CNN News ....) can talk with 3rd party application to get data
+
+	1.3 - Login with Google/Facebook/Twitter/Apple vs ....
+
+		  When we try to sign up any kind of application if they have sign up with Google/Facebook and others.They can communicate with GoogleAPI and FacebookAPI based on thier rules and gets NECESSARY infromation from them to validate you 	
+
+
+		  Google/Facebook/Twitter/Apple will prepare one RESPONSE JSON/XML or .....
+
+		  	{
+			  	"firstname":"Mike",
+			  	"lastname" :"Smith",
+			  	"email"    :"msmith@cydeo.com",
+			  	"birthdate":"01011970",
+			  	....
+			  	...
+			  	..
+			  	.
+		  	}
+
+
+    EXTRA INFORMATION --> When you try to delete any infroamtion from any website they are not actually deleting 
+    					  SOFT DELETE 
+
+    					  	1 - Mehmet - email - address - accountCreationDate - billingInfo --->  enabled (display)
+
+    					  	When I try to delete it 
+
+    					  	1-12012022          disabled (display)
+
+
+     
+    This is couple of the way how application communicating each other 
+
+    	- They are using JSON/XML/HTML/TEXT and others 
+    	- Mostly it is JSON format 
+    	- This communication happens through HTTP Protocol 
+
+
+    	- HTTP Protocol in simple term --> It allows us sending request and getting responses
+
+2 - Building API for application itself (we are gonna share APIs fro 3rd party application)
+
+	Monolithic Design
+		All is one HUGE application, and whenever you need to update something, you need to stop everything, fix one part, make sure nothing broke and then RUN again.
+		It is a good approach for small size of application
+
+
+	Microservice Design
+
+		All application divided into small applications . Each service will have their database and they are interacting via api request.
+		- All the layers of the application are different microservice.
+		- They are related but each independent. Each microservice has its own database, its own logic.
+		    
+		- Each microservice can be written in a different language, supporting a differentdatabase...
+		    
+		- The databases will not have connections. Microservices integrating together withthe REST API.
+
+		 You have multiple backends and they communicate with the REST API
+
+----------------------		
+2 Main types:
+		- SOAP Api
+		- Rest / Restful Api
+
+SOAP:
+	Soap (Simple Object Access Protocol)
+	- SOAP is slower and XML bases. But more secure.
+    - Banks, or other financial applications might be using SOAP for some critical operations
+	- Request and response are in XML format, like Pom.xml with tags
+
+
+
+REST:
+	REST(Representational State of Transfer) is a lightweight option for developing web services using the HTTP protocol.
+	- Data format can be in xml, json or other. Json is most popular format in use
+    - it is lightweight, easier to develop and use
+    - much more popular than SOAP
+
+
+We also call APIs --> WEB SERVICE, OR JUST SERVICE
+----------------------		
+
+	How we can test APIs? 
+
+		- Postman tool/IDE 
+			- Manual 
+			- Automation 
+
+		- Rest Assured Library 
+
+			- Automation 
+
+			NOTES
+				- it is used to rest api automation 
+				- it helps us to write test in BDD style to make it readable 
+				- It has many static methods to send request for API testing 
+
+
+				Website --> https://rest-assured.io/
+
+				Dependency --> maven repository 
+
+					<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+					<dependency>
+					    <groupId>io.rest-assured</groupId>
+					    <artifactId>rest-assured</artifactId>
+					    <version>5.3.0</version>
+					    <scope>test</scope>
+					</dependency>
+
+
+
+	    1. API TESTING is based RESPONSE and REQUEST 
+	    2. First read document to learn how can we can Request (SWAGGER)
+	    3. Do manual Testing 
+	    			- Swagger 
+	    				- There is no way to organize 
+	    			- Postman 
+	    				- it helps organizing results
+	    4. If everything is OK we are gonna automate API Testing 
+	    5.Verify response based on request 
+
+	    		- We need to verfiy all response 
+	    		- Partially verify 
+
+
+HTTP REQUEST 
+
+CRUD       SQL       API 
+
+Read   --- SELECT -- GET 
+Create --- INSERT -- POST 
+Update --- UPDATE -- PUT / PATCH 
+Delete --- DELETE -- DELETE 
+
+
+
+------------
+
+What are types of documents? 
+
+  - Swagger
+  - Confluence Doc 
+  - Postman Doc
+  - WebSite
+  - Simple PDF 
+  - Jira
+
+  If no document -->  Ask testers/developers to understand/find document.Or do quick meeting to get their knowledge
+
+  					  Network --> it will take time to understand 
+
+
+
+-----------------
+
+--> 3.85.103.221 --> IP1	
+--> 3.85.201.5   --> IP2     
+			
+
+
+Ex --> Website 
+       
+       https://digital.nhs.uk/developer/api-catalogue/hello-world#api-Default-getHello
+
+
+Ex --> Swagger 
+		
+		IP:8000 --> Spartans 
+
+
+
+---------------------
+
+First Test case 
+
+	 /**
+     * When users end request to /api/spartans endpoint
+     * Then user should be able see status code is 200
+     * And Print out response body into screen
+     */
+
+
+We created project called as Rest-Assured 
+
+	Dependencies are 
+
+			    <dependencies>
+	        <!--Dependency for Rest Assured library  -->
+	        <dependency>
+	            <groupId>io.rest-assured</groupId>
+	            <artifactId>rest-assured</artifactId>
+	            <version>4.5.1</version>
+	            <scope>test</scope>
+	        </dependency>
+
+        	<!--JUnit 5 Dependency  -->
+	        <dependency>
+	            <groupId>org.junit.jupiter</groupId>
+	            <artifactId>junit-jupiter</artifactId>
+	            <version>5.9.0</version>
+	        </dependency>
+   	 </dependencies>
+
+
+
+   	 	REQUEST 
+   	 		
+   	 		HTTP METHOD --> GET / POST/PUT/DELETE 
+   	 		URL         --> IP:8000/api/spartans  (BaseURL+Endpoint)
+   	 		PARAMETERS  --> Path / Query Param 
+   	 		HEADERS     --> Additional infromation about request 
+   	 		BODY        --> 
+
+   	 	RESPONSE 
+   	 		STATUS CODE --> This is the first that we need to check 
+   	 		HEADERS     --> Additional infromation about request
+   	 		BODY        --> BResponse Body verification 
+   	 	
+
+
+----------- 
+
+How can we undeerstand we send request succesfully ? 
+
+	We have 3 main differetn status code 
+
+	Are these status code universal or just for cydeo?
+
+	- YES 
+
+
+	2xx --> Successfully API request/response is done.There is another like 201/204 we are gonna learn later
+
+	4xx --> Comes from Client side. 400/401/403/406/415 .most of the time we did one mistake that s why does accept the    request    	
+
+	5xx --> This erros comes from Server Side.500/503.The server might be down.It may not eligible to handle too much request 
+
+
+----------------------
+
+
+ What is JSON ? 
+ 	JavaScript Object Notation 
+
+ 	- It is type of  response 
+ 	- Key value pair 
+
+ 		{
+
+ 		"message":"Hello world";	
+ 		
+ 		}
+
+ 	Values can be 
+
+ 		String 
+ 		Number 
+ 		Array 
+ 		Boolean 
+ 		null
+ 		JSON Object
+
+
+ 		 {
+
+ 		   "firstname":"Mike",
+ 		   "lastname":"Smith",
+ 		   "hobbies":["swimming","traveling"],
+ 		   "address":{
+
+ 		   				"street":"",
+ 		   				"postcode":22030,
+ 		   				"phone":{
+
+ 		   					"work":123456,
+ 		   					"phone":325647
+ 		   						}
+ 		  			 
+ 		  			 }
+
+ 		 }
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

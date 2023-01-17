@@ -1,0 +1,495 @@
+API DAY 07 
+
+
+
+-- How to verify RESPONSES ?
+
+1- Contains --> It is not suggested 
+
+		.contains()  method comes from Strign class just to see our response has related info or not 
+
+		- Does it make guarentee we have name as Fidole.It will only check whole response 
+
+		response.asString().contains("Fidole")
+
+
+2- RESPONSE 
+
+	- response.path("GPATHSyntaxToFindRelatedField")	
+
+			- It is returning T Generics.So we need to choose correct datatype to store
+
+			    {
+			        "id": 8,
+			        "name": "Rodolfo",
+			        "gender": "Male",
+			        "phone": 9601637574
+			    }
+
+		int id= response.path("id")	 --> 8 	
+ 		String name= response.path("name") --> Rodolfo	
+
+
+ 	- response.as() --> For deserilization --> 
+
+ 		- JSON to MAP (Java Collection)
+ 				
+ 		Map<String,Object>	spartanMap =	response.as(Map.class)	
+
+ 		Q --> Can we point specific part of response to store with response.as() method 
+
+ 			- No.Because it will not have argument to choose path of certain JSON Object from response 
+
+ 		- JSON to POJO ()	
+
+ 			- Lets assume we are gonna store infroamtaion from response except phone number 
+
+ 			
+ 			@Data
+ 			@JsonIgnoreProperties(ignoreUnknown=true)
+ 			public class Spartan
+ 			{
+
+	 			 private int id;
+	 			 private String name;
+	 			 private String gender;
+
+ 			}
+
+ 			Spartan spartan = response.as(Spartan.class);
+
+ 				spartan.getId();
+
+
+ 			@JsonIgnoreProperties(ignoreUnknown=true) --> if resposne fields are not maching with POJO class fields it will ignore them 
+
+ 			@Data --> @Getter + @Setter + @ToString ........ has more annotation 
+ 			@Data annotations comes from Lombok library to reduce code redundancy and to get rid of Boiler plates codes 
+
+
+
+3- JSONPATH 
+
+
+		JsonPath jp=response.jsonPath();
+
+
+			    {
+			        "id": 8,
+			        "name": "Rodolfo",
+			        "gender": "Male",
+			        "phone": 9601637574
+			    }
+
+		int id      = jp.getInt("id");	
+		String name = jp.getString("name");	 
+		jp.getObject();	
+		.....
+		...
+		...     
+
+
+
+		DESERILIZATION 
+
+		- JSON to MAP (Java Collection)
+
+			Map<String,Object> spartanMap=jp.getMap("",Map.class)
+
+			Lis<Map<String,Object>> allSpartans=jp.getList("",List.class)
+
+
+		- JSON to POJO (Plain Old Java Objects)
+
+
+			@Data
+ 			@JsonIgnoreProperties(ignoreUnknown=true)
+ 			public class Spartan
+ 			{
+
+	 			 private int id;
+	 			 private String name;
+	 			 private String gender;
+
+ 			}
+
+ 			Spartan spartan=jp.getObject("",Spartan.class);
+
+ 			spartan.getId();
+ 			spartan.getName();
+ 			.....
+ 			...
+ 			.
+
+
+
+4- HAMCREST 
+
+	 - It is an assertion library comes with RestAssured 
+	 - We are not gonna add any dependency to use it 
+
+
+	 ......
+	 .......
+	 .then()
+	 .statusCode(200)
+	 .and().assertThat() ---> these are syntatic sugar to increase readablity 
+	 .body("id",is(8),"name",is("Rodolfo")) 
+	 .body("gender",is("Male"))
+
+
+	 how can we extract data after Hamcrest 
+
+
+	 Response response=
+	 ......
+	 .......
+	 .then()
+	 .statusCode(200)
+	 .and().assertThat() ---> these are syntatic sugar to increase readablity 
+	 .body("id",is(8),"name",is("Rodolfo")) 
+	 .body("gender",is("Male"))
+	 .extract().response();
+
+
+	 JsonPath jsonPath=
+	 ......
+	 .......
+	 .then()
+	 .statusCode(200)
+	 .and().assertThat() ---> these are syntatic sugar to increase readablity 
+	 .body("id",is(8),"name",is("Rodolfo")) 
+	 .body("gender",is("Male"))
+	 .extract().jsonPath();
+
+
+	 Scenario 1 --> 
+
+	 		- Assume that you added new Spartan with Using API (EXPECTED)
+
+	 		   - After create it extract data with required field to verfiy against DB 
+
+	 		- DB needs to have same data that pushed from API 
+	 		
+	 			- DB will be ACTUAL 
+
+	 
+	 Scenario 2 --> 
+
+	 		- We get data through API for spartan ID = 10 
+
+	 		- We get data from DB for spartan ID =10 
+
+	 		- Assertion 
+
+	 			DB  --> Expected
+	 			API --> Actual 
+
+
+
+5-  DESERILIZATION TO JAVA 
+
+6-  DESERILIZATIPON TO POJO 
+
+
+--------------------------------------------------------------------
+
+
+GET ---> Retrieving data with API request ---> Where data comes from ---> Databases
+
+		
+
+
+POST --> Adding/Inserting new data through API.(First time data is adding)
+PUT  --> Updating Data 
+PATCH -> Updating Data
+	What is difference ? 	
+		PUT --> for fully update 
+				    {
+			     
+			        "name": "Rodolfo",
+			        "gender": "Male",
+			        "phone": 9601637574
+			    	}
+
+		PATCH --> for partially update 
+					{		     
+			        "name": "Mike"			       
+			    	}
+
+DELETE-> Deleting existing record 
+
+
+Is it possbile to do deserilization with POST - PUT - PATCH - DELETE ? 
+	
+	YES.Deserilization for RESPONSE body  to POJO or Java Collection 
+	- IF POST - PUT - PATCH - DELETE one of them returning response body and if we wanna deserialize we can 
+
+
+
+-------- POST REQUEST  ----------
+
+	  415 ---> Unsupported Media Type --> API does not supprt datatype that you try to send fro the POST 
+
+	  	In our case we try to send POST /api/spartans without choosing datatype as application/json and it gives 415 
+
+
+	 - We are suing to create new record / spartan with the help of API Request and the information that we need to follow is written in SWAGGER 
+	 - Even if we have same jsonBody it will create new record us 
+
+	PART OF POST REQUEST 
+
+	   BaseURL    + endpoint 
+	   spartanURL + /api/spartans
+
+	   Headers 
+	   		Accept     --> API I need data as application json
+	   		Contentype --> HEY API I AM SENDING DATA AS APPLICATION/JSON 
+	   				(If we dont say type of it it will return 415 Unsupported Media Type)
+	   Params
+	   		Query
+	   		Path 
+	   			- It depends on how they developed in ou we dont have it (Use Swagger to see )				
+
+	   Request Body 
+	   				
+	   				{
+				        "name": "Mike POST",
+				        "gender": "Male",
+				        "phone": 1234567890
+			    	}
+
+	PART OF POST RESPONSE 
+
+		Status Code --> 201 Created --> It means is Successfully Created
+		Headers 
+			Contentype --> HEY CLIENT I AM SENDING DATA AS APPLICATION/JSON 
+
+		Body 
+			- Mostly we are gonna see some successful message 
+					- A spartan is born 
+			- MAybe we are gonna what we send to create through API as we did Spartans
+			- It depends developer design
+			
+				{
+			    "success": "A Spartan is Born!",
+			    "data": {
+			        "id": 152,
+			        "name": "Mike POST",
+			        "gender": "Male",
+			        "phone": 1234567890
+			    }
+			}			
+
+-------- PUT REQUEST  ----------
+
+	- We use PUT to update existing record
+
+
+
+
+	PART OF PUT REQUEST 
+
+	   BaseURL    + endpoint 
+	   spartanURL + /api/spartans/{id}
+
+
+	   Headers 
+	   		Accept     --> API I need data as application json.but in our case since we are not getting any response we dont need to tell give me application json.That is why we did not use it 
+	   		
+	   		Contentype --> HEY API I AM SENDING DATA AS APPLICATION/JSON 
+	   				
+	   Params
+	   		Query
+	   		Path --> We used in PUT Request to specify existing record with theie id.So in our case 
+	   		         I used 146 as a id to update realted spartan 
+	   						
+
+	   Request Body 
+	   				- We need to give all field that spartan has 
+	   				- PUT method for updating all fields 
+	   				{
+				        "name": "Mike POST",
+				        "gender": "Male",
+				        "phone": 1234567890
+			    	}
+
+
+
+	PART OF PUT RESPONSE 
+
+		Status Code --> 204 No Content --> It means is Successfully DONE 
+		Headers 
+			We dont have any header in PUT Request.But it depends how they desing it 
+
+		Body 
+
+			There can be body as well.But in spartan it will not return any body after using PUT method 
+
+
+
+-------- PATCH REQUEST  ----------
+
+
+	- We use PATCH to update existing record PARTIALLY 
+
+
+
+
+	PART OF PATCH REQUEST 
+
+	   BaseURL    + endpoint 
+	   spartanURL + /api/spartans/{id}
+
+
+	   Headers 
+	   		Accept     --> API I need data as application json.but in our case since we are not getting any response we dont need to tell give me application json.That is why we did not use it 
+	   		
+	   		Contentype --> HEY API I AM SENDING DATA AS APPLICATION/JSON 
+	   				
+	   Params
+	   		Query
+	   		Path --> We used in PATCH Request to specify existing record PARTIALLY with these id.So in our case 
+	   		         I used 146 as a id to update ONLY related spartan name 
+	   		         Of course we can update more than one field as wel
+	   						
+
+	   Request Body 
+	   				- We need to give all field that spartan has 
+	   				- PUT method for updating all fields 
+	   				{
+				        "name": "Mike PUT"
+			    	}
+
+
+
+	PART OF PATCH RESPONSE 
+
+		Status Code --> 204 No Content --> It means is Successfully DONE 
+		Headers 
+			We dont have any header in PUT Request.But it depends how they desing it 
+
+		Body 
+
+			There can be body as well.But in spartan it will not return any body after using PUT method 
+			
+			
+
+-------- DELETE REQUEST  ----------
+
+	- It will remove exising data from records / database
+
+
+	PART OF DELETE REQUEST 
+
+	   BaseURL    + endpoint 
+	   spartanURL + /api/spartans/{id}
+
+	   				
+	   Params
+	   		Query
+	   		Path --> We used in DELETE Request to delete existing record with these id.So in our case 
+	   		         I used 146 as a id to delete from resources 
+	   						
+
+	PART OF DELETE RESPONSE 
+
+		Status Code --> 204 No Content --> It means is Successfully DONE 
+	
+		Body 
+
+			There can be body as well.But in spartan it will not return any body after using DELETE method 
+
+
+
+----------------------------------------------------------
+
+IQ --> What is difference between POST and PUT ? 
+	
+		POST --> We are using POST to add new record/data/spartan/customer//employee/item/ product for the FIRST TIME 
+		PUT  --> If we wanna update EXISTING Record we need to use PUT Request
+				 While we are using PUT we need to send ahole JSON Ojbect even if we UPDATE only one field from JSON as well 
+
+
+IQ --> What is difference between PUT and PATCH ? 
+		PUT --> If we wanna update EXISTING Record we need to use PUT Request
+				 While we are using PUT we need to send ahole JSON Ojbect even if we UPDATE only one field from JSON as well
+
+		PATCH --> We are gonna UPDATE existing record PARTIALLY 		 
+
+----------------------------------------------------------
+
+Q -- How in a real work we will be using postman for post request, because it will create new id everyTime which will not match when I will do automation
+
+		POSTMAN 
+			- There  is way to create variables and chain them between request.With the help of this we can store id that we get as a variable.GET request will use whatever we saved as id from reponse
+
+
+
+
+----------------------------------------------------------
+
+FOR ALL OF THEM WE NEED TO SAY 
+  - We are sending data as JSON format 
+  	- contentType(ContentType.JSON)
+
+HOW TO POST REQUEST WITH RESTASSURED
+
+1 - We send request body as String 
+
+		
+		String requestBody="{\n" +
+                "     \"gender\":\"Male\",\n" +
+                "     \"name\":\"John Doe\",\n" +
+                "     \"phone\":8877445596\n" +
+                "     }";
+
+   We created structure manually with copy and pasting into one String variable then we passed as requestBody in body method              
+
+
+2- We used Map to send request as JSON 
+
+	- We created map as followings with required field based on Swagger
+
+	 Map<String,Object> requestBody=new LinkedHashMap<>();
+        requestBody.put("name","James Bond");  // min 2 letter - max will be 15 letter
+        requestBody.put("gender","Male");      // Male or Female
+        requestBody.put("phone",1234567890l);  // 10 to 13 digits 
+
+
+        body(requestBody) --> did SERIALIZATION while we are trying to POST data in API 
+
+
+
+
+3- We used POJO to send request 
+
+
+	- Since we already had Spartan for deserilization we decided to use same POJO.It is up to you if you wanna create new SpartanPOSTPOJO yes still it is doable.If we know the annotations it is good use.That is why we used following annotation to DONT serialize id field and deserialize it.
+
+
+     Spartan requestBody=new Spartan();
+        requestBody.setName("John Wick");
+        requestBody.setGender("Male");
+        requestBody.setPhone(1234567890l);
+
+  body(requestBody) --> did SERIALIZATION while we are trying to POST data in API 
+
+----------------------------------------------------------
+@JsonIgnoreProperties(value="id",allowSetters = true)
+
+
+- This could be used to specify "write-only" properties; ones that should not be serialized out, but that may be provided in for deserialization. 
+
+	- While we were doing deserilization response (JSON) to POJO we need 4 field (id,name,gender,phone)
+
+	- If we need to use same POJO for POST/PUT request we should not send id as key.In spartan app there is no error message 
+	  or status code to show issue but in other APIs there can be 400 BAD REQUEST 
+
+	- To solve this we used 
+			@JsonIgnoreProperties(value="id",allowSetters = true) 
+
+			to ignore id field while we are doing serialization
+
+
+

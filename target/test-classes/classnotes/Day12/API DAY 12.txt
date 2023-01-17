@@ -1,0 +1,221 @@
+
+
+
+API DAY 12 
+
+
+   JUNIT5 --> https://junit.org/junit5/docs/current/user-guide/
+
+
+   Junit Features 
+
+
+--- ASSERTIONS -------   
+
+      - SOFT ASSERTION (VERIFY )  VS HARD ASSERTION (ASSERT)  (What is the difference between VERIFY and ASSERT )
+
+      	HARD ASSERT 
+      			-  Test Execution will be aborted if the assert condition is not met
+		        -  Rest of execution will stop
+		     
+		        - Use Case --> if we are checking critical functionality of the app we can check with hard asssert to continue next steps
+
+		        - Following code fragment will stop execution after first assertion due to assertion fail
+
+		       public  void hardAssert() {
+
+			        assertEquals(10,5+5);
+			        System.out.println("---- First Assert is DONE ");
+			        assertEquals(9,5+5);
+			        System.out.println("---- Second Assert is DONE");
+			        assertEquals(10,5+5);
+			        System.out.println("---- Third Assert is DONE");
+
+			    }
+
+
+		SOFT ASSERTION 
+				
+				- Test Execution will continue till end of the code fragment even if one the assertion is failing
+				- Following code fragment will even we have 2 failed assertion.After all assertions are done it 
+				  will show into screen both assertion failure at the same 
+
+
+				 public  void softAssert() {
+
+			        assertAll("Learning Soft Assert",
+			                () -> assertEquals(10, 5+5),
+			                () -> assertEquals(9, 5+5),
+			                () -> assertEquals(9, 5+5)
+			       		 );
+
+		    		}
+
+
+-------------------------------------------------------------
+
+
+DDT 
+	
+	- Cucumber-Junit 
+			- Scenario Outline 
+				- Examples
+					| |
+
+    - TestNG 
+
+    	    - DataProvider 
+
+    - JUnit5 
+    		- @ParameterizedTest
+    				- ValueSource
+    					- It will take only one single set of data to provide test cases to run same test against diff data 
+    					- In following example it runs test1 against data taht provided from ValueSource
+    					- In that case same test will run 5 times 
+
+					    @ParameterizedTest
+					    @ValueSource(ints = {10,20,30,40,50} )
+					    public void test1(int number) {
+
+					        System.out.println(number);
+					        Assertions.assertTrue(number<40);
+
+					    }
+
+    				- CSVSource 
+
+    				    - If we wanna use more than one variable to make our test case DDT 
+    				      we can use CsvSource to provide datas 
+    				    - In this example the value that we need use seperated by Comma 
+    				    - So in each run it will take set of data ("1,3,4")  then pass as parameter into 
+    				      test1 method 
+    				    - This test case will run 4 times against different datas    
+
+    				       @ParameterizedTest
+						    @CsvSource({"1,3,4",
+						                "2,3,5",
+						                "3,4,7",
+						                "5,6,11"})
+						    public void test1(int num1,int num2,int sum) {
+
+						        System.out.println(num1 + "+"+ num2+"="+sum);
+						        Assertions.assertEquals(sum,(num1+num2));
+
+						    }
+
+
+
+    				- CsvFileSource
+
+    					// numLinesToSkip =1 --> it says I wanna skip first line of csv file 
+    					// num1,num2,sum --> Why we are keeping that in first line 
+    					  - You can delete as well.But to make it readable and understand what we are providing 
+    					     it is good to keep
+    				
+    					Instead of getting data into methods we can use csvfilesource to read from external file 
+    					taht we put under resources too
+
+
+    					- We generated one csv file called as math.csv and with the help of @CsvFileSource we read data 
+    					to run test as DDT 
+
+
+    						@ParameterizedTest
+						    @CsvFileSource(resources = "/math.csv",numLinesToSkip =1 )
+						    public void test1(int n1,int n2,int total) {
+						        System.out.println("n1 = " + n1);
+						        System.out.println("n2 = " + n2);
+						        System.out.println("total = " + total);
+
+						    }
+
+    				- MethodSource 
+
+    					- This is the most powerful one 
+    					- It allows us create logic into method to create data dynamicly 
+    					- If we wanna get data from 3rd party we can use Java+RestAssured to read 
+    					- ıf we wanna get data from database we can use DB_Util to get 
+    					- ........
+
+    					- In follwoing example we read data from Excel to run DDT 
+					    @ParameterizedTest
+					    @MethodSource("getExcelData")
+					    public void credentailsTest(Map<String, String> userInfo){
+
+					        System.out.println(userInfo);
+					        System.out.println("userInfo.get(\"Email\") = " + userInfo.get("Email"));
+					        System.out.println("userInfo.get(\"Password\") = " + userInfo.get("Password"));
+					        System.out.println("---------");
+
+
+					    }
+
+					    public static  List<Map<String, String>> getExcelData() {
+
+					        ExcelUtil library=new ExcelUtil("src/test/resources/Library.xlsx","Library1-short");
+
+					         return library.getDataList();
+					    }
+
+
+ADD EXCEL UTIL AND DEPENDENCIES 
+
+    				 1-- Add dependency 
+				    	<dependency>
+				            <groupId>org.apache.poi</groupId>
+				            <artifactId>poi</artifactId>
+				            <version>4.1.2</version>
+				        </dependency>
+
+				        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+				        <dependency>
+				            <groupId>org.apache.poi</groupId>
+				            <artifactId>poi-ooxml</artifactId>
+				            <version>4.1.2</version>
+				        </dependency>	    
+
+                    2-- Reload maven 
+                    3-- Add ExcelUtil + Library excel + Bookit Excel 
+
+                    Why we are using 2 dependency ? 
+
+                    	- Microsoft documents 2 version of file 
+                    		doc vs docx 
+                    		xlx vs xlxs
+
+NOTE --> If it is not working with 4.1.2 you can use 5.0.0 as version as well
+
+----- ExcelUtil ------
+
+- It is ready class to read / set data 
+- We should create an ExcelUtil Object to use it 
+
+		ExcelUtil data=new ExcelUtil("pathOfFile","nameOfSheet");
+
+- data Object can access all methods from ExcelUtil to get data 
+		
+		data.getDataList() --> will return all data as List of Map 		
+
+----------------------
+Q --> How do you differentiate Data table and Scenario outline actually out of topic but want to hear from you?
+
+		What is dataTable ? 	
+			- if you wanna pass parameter from any step taht you have feature file.You can pass as sinle parameter like 
+			   "teacher" or if you need pass set of data like team information you can create datatable with pipes 
+			   	| campus| VA    |
+			   	| batch |  8    |
+			   	| team  |Legends|
+
+		What is Scenariou Outline ? 
+			- This is for doing DDT in Cucumber.
+
+
+
+
+
+
+
+
+
+
+

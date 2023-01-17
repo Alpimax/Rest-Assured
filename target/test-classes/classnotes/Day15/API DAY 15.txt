@@ -1,0 +1,410 @@
+
+
+API DAY 15 
+
+
+QUESTIONS 
+
+1- How do you test business restrictions that are on the API?
+
+    Restrictions can be anything 
+    	- Authentication / Auhorization 
+    	- while POSTing spartan 
+    		name --> 2-15 letter 
+    		gender --> Male / Female 
+    		phone --> 10-13 digits 
+
+    - I created positive scenario based different in roles my application which called as RBAC.I tried all CRUD operation with roles to endpoints are working based on roles. 
+
+    	user --> CREATE SPARTAN --> 403 Frobidden  	 --> NEGATIVE SCENARIO 
+    	guest -> CREATE SPARTAN --> 401 Unauthorized --> NEGATIVE SCENARIO 
+    	admin -> CREATE SPARTAN --> 201 Created    	 --> POSITIVE SCENARIO 		
+
+    - While POSTing spartan I send field values with trying all possible scenarious to do positive and negative testing
+
+2- Give an example on an API test you recently wrote and how detailed you went with the test case?
+
+	- In recent project POST /customer endpoint to POST one customer info. While I am trying that I prepare one JSON body/payload to send data.Then I checked status code was 201.
+	- After doing that I tried all negative scenarious to POST /customer.In one of the negative scenario I found a bug.
+	- When I try to send customer with 15 digit phone number it needs to give 400 BAD REQUEST but I get as status code 500
+	  INTERNAL SERVER ERROR which is a valid bug 
+	
+			name --> 2-15 letter 
+    		gender --> Male / Female 
+    		phone --> 10-13 digits 
+
+
+3- How would you validate only part of the body of a response?
+
+	- I am using jsonPath/path to get specific part of response to assert against expected data that we are getting from requiremt.Also I am doing Json Schema Validation to check response body is matching with structure 
+
+
+4- What are the collections you use to read the json file and store?
+
+	- Map
+	- List<Map>
+	- List<POJO>
+
+
+5- How do you handle data issue in your automation ? for example test failed due to data you used for test does not exists or data is not in correct state for the test run ?
+
+	- For example GET /api/spartans/{id} ---> 404 --> Not Found 
+
+	- The spartan that you does not exist in DB
+
+	1- USE EXISTING ONE 
+
+	   - GET /api/spartans and find one valid spartan ID and use it 
+
+	2- CREATE A NEW SPARTAN 
+	
+	   - POST /api/spartans and get newly generated spartan ID to test 
+
+	   - Mostly it is not recommended.Maybe you will have access to.If you have you can add spartan through database 
+
+	   	INSERT INTO ....   
+ 
+
+--------------------------------------------
+
+
+--> LOG4J
+
+	-> It is mostky used for developers to keep track of hat happens in appliction or online services 
+
+	LIBRARY LOGS 
+
+		- INFO --> Login as librarian43
+		- INFO --> Opened Books Page 
+		- INFO --> Borrowed Books --> Clean Code 
+		- FATAL -> 61 line ->  NullPointerException 
+		---- CRASH ----
+
+		- Dev will ready document and easily find what is the issue in application  
+
+
+    
+    -> Why we need it ? 
+
+    	- While we writing test scenarious we can use Logging to keep track which line is failing and what is the reason 
+
+
+    -> POST 
+    	-> INFO --> Spartan is created --> 1998 
+    	-> INFO --> {
+					    "success": "A Spartan is Born!",
+					    "data": {
+					        "id": 1083,
+					        "name": "Mike",
+					        "gender": "Male",
+					        "phone": 1234567890
+					    }
+					}
+    -> GET 
+    	-> INFO --> Spartan info exist in API 
+    -> PUT 
+    	-> INFO --> Spartan is updated 	
+
+
+LOGGING LEVELS 
+
+	- INFO 
+	- WARN 
+	- FATAL 	
+	- ERROR 
+	- DEBUG 
+	- TRACE 
+	- ALL 
+
+
+HOW TO ADD LOGGING 
+
+1- Add dependencies 
+
+	
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+
+2- Add log4j.properties file 
+
+		#config syntax
+	name = PropertiesConfig
+	property.filename = logs/automation.log
+
+	#publish console logs
+	appenders = console, rolling
+	appender.console.type = Console
+	appender.console.name = STDOUT
+	appender.console.layout.type = PatternLayout
+	appender.console.layout.pattern = %d{dd.MM.yyyy HH:mm:ss} %-5p %c{1}:%L - %m%n
+
+
+	appender.rolling.type = RollingFile
+	appender.rolling.name = roll
+	appender.rolling.fileName = ${filename}
+	appender.rolling.filePattern = logs/app/%d{MM-dd-yy-HH-mm-ss}-%i-automation.log.gz
+	appender.rolling.layout.type = PatternLayout
+	appender.rolling.layout.pattern = %d{dd.MM.yyyy HH:mm:ss} %-5p %c{1}:%L - %m%n
+	appender.rolling.policies.type = Policies
+	appender.rolling.policies.time.type = TimeBasedTriggeringPolicy
+	appender.rolling.policies.time.interval = 15
+	appender.rolling.policies.time.modulate = true
+	appender.rolling.policies.size.type = SizeBasedTriggeringPolicy
+	appender.rolling.policies.size.size=100MB
+	appender.rolling.strategy.type = DefaultRolloverStrategy
+	appender.rolling.strategy.max = 5
+
+	loggers = rolling
+
+	# capture logs layer
+	logger.rolling.name = org.apache.logging.log4j.core.appender.rolling
+	logger.rolling.level = all
+	logger.rolling.additivity = true
+	logger.rolling.appenderRefs = rolling
+	logger.rolling.appenderRef.rolling.ref = roll
+
+	# root layer
+	rootLogger.level = all
+	rootLogger.appenderRefs = rolling, stdout
+	rootLogger.appenderRef.rolling.ref = roll
+	rootLogger.appenderRef.stdout.ref = STDOUT
+
+3- Create Object from Logger in TestBase class 
+
+	import org.apache.logging.log4j.LogManager;
+	import org.apache.logging.log4j.Logger;
+	
+	protected Logger log=LogManager.getLogger();
+
+	.getLogger(this.getClass()) --> will get info about current class to put into log file 
+
+	NOTE --> IMPORT need to come from apache
+
+4- Extends Testbase to use it 
+
+
+
+
+
+
+HOW TO IMPLEMENT IN CUCUMBER FRAMEWORK 
+
+1 - Create log4j2.properties file unders resources 
+2 - Add dependencies 
+3 - Create an object from Logger under each Step Defs 
+	
+	public static final Logger LOG= LogManager.getLogger();
+
+
+	.getLogger(); --> as a default it will get current class name 
+
+
+RESUME 
+
+ - Technical Skills Summary 
+
+ 	- Language --> Java,Gherkin, SQL etc 
+ 	- Logging  --> log4j2
+
+
+
+
+--------------------------------------------
+
+--> SOAP API SAMPLE 
+
+	WSDL Calculator --> http://www.dneonline.com/calculator.asmx?WSDL
+  
+  - There is WSDL file that includes description of SOAP API 
+  - We can import by usign Postman-> Import-> Link-> http://www.dneonline.com/calculator.asmx?WSDL --> IMPORT 
+  - Click API to see 
+  - All the requests/response are POST 
+  - Only type of data will be XML 
+
+  - REST Assured CAN NOT automate SOAP API 
+  
+  REQUEST
+
+  	<?xml version="1.0" encoding="utf-8"?>
+	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	  <soap:Body>
+	    <Add xmlns="http://tempuri.org/">
+	      <intA>50</intA>
+	      <intB>32</intB>
+	    </Add>
+	  </soap:Body>
+	</soap:Envelope>
+
+
+  RESPONSE 
+
+  	it has status code , headers , body
+
+  	<?xml version="1.0" encoding="utf-8"?>
+	<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	    <soap:Body>
+	        <AddResponse xmlns="http://tempuri.org/">
+	            <AddResult>82</AddResult>
+	        </AddResponse>
+	    </soap:Body>
+	</soap:Envelope> 
+
+
+
+--------------------------------------------
+
+  --> REVIEW --> HTTP STATUS CODES 
+
+
+--------------------------------------------
+
+
+
+--> MOCKING APIs  / STUBBIBG API 
+ 
+
+ MOCK servers let you simulate endpoints and their corresponding responses in a collection without actually setting up a back end.
+
+  Q --> Lets say you started the sprint, and API is not ready to test/automate, what do you do in the meanwhile?
+  
+        - work on previious sprint stories 
+        - maintain your frameworks,fix your fails ,refactor code. 
+        - We can create MOCK API that is matching exactly with real API responses to create our test cases/POJOs if you need utils 
+
+        /api/hello 
+
+        	response --> Hello from Sparta
+
+
+        GET /api/spartans
+        
+        POST /api/spartans 
+
+        Still developer has lots of job in his plate and they are eligible to implement these endpoints 
+
+        We are gonna get expected responses from developer and we are gonna that will act like real API endpoints 
+
+        It will includes headers / status code /response with matching real one 
+
+        Datas will static 	
+
+
+
+    EX -->    REAL API BASE URL --> IP:8000 
+ 
+    		  /api/hello 
+
+        			response --> Hello from Sparta
+        			statusCode--> 200 
+        			....
+        			..
+
+
+        	  MOCK API BASE URL --> 912321hadjkasuer82103.postman.io 
+
+        	  /api/hello 	 	
+
+        	  	    response --> Hello from Sparta
+        			statusCode--> 200 
+        			....
+        			..
+
+
+
+            After real API is ready what is the things that I need change ? 
+            
+            	- Instead of using MOCK API BASEURL we are gonna use REAL API BASE URL ; 
+
+
+
+
+
+
+ Is this only the condition that we need to create MOCK API ? 
+
+ 	1- UI Developer vs Backend Developer 
+
+ 		If API feeds UI and endpoints are not ready.In that case UI Developer wil create MOCK API to feed UI after Real endpoints are ready UI dev will use real API to feed UI 
+
+    2- Backend Dev1 vs BAckend Dev2 
+
+    	If Backend Dev1 needs to get data from Backend Dev2 API  and if it is not ready yet.Backend Dev1 will MOCK API to use in their code 		
+
+
+Q -- So one thing which is still not clear for me what will be the benefit for the real API when we test the MOCK API?
+
+
+	GET /api/spartans 
+		[
+
+	    { 
+	        "id":1,
+	        "name":"George",
+	        "gender":"Male",
+	        "phone":1234567890
+
+	     },
+	     { 
+	        "id":2,
+	        "name":"Mike",
+	        "gender":"Male",
+	        "phone":1234567890
+
+	     },
+	     { 
+	        "id":3,
+	        "name":"Harold",
+	        "gender":"Male",
+	        "phone":1234567890
+
+	     }
+	    ]	
+
+
+ It is not developed yet and we are gonna start implementation of testcases ? 
+
+ - We are gonna create MOCK API to get exaclt same responses,status code, headers 
+
+ - We will craete testcase to check with MOCK API 
+
+ - Once Real API is ready we are gonna use real API base URL 
+
+We can make mokc servers with many different tools.
+    - Wiremock
+    - MockLab
+    - EasyMock
+    - Postman
+    - .....
+    - ...
+
+
+IQ: What was your challenge with automation and how did you overcome it?
+
+	-> My application depends on many external third party APIs. So when doing testing, if any of the third party services are down, then we cannot perform testing of our flow end to end.
+	Then I suggested to MOCK third party API calls using Postman mock server. (wiremock)
+	And we added MOCK environment for our application where all the backend third party API calls are mocked using postman mock server.
+	We added mock request and responses to match with those external services.
+	Then we were able to test OUR application code in isolation. without interruptions of external apis being down.
+
+
+
+
+
+
+
+
+
+
+
+

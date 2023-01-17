@@ -1,0 +1,267 @@
+
+
+THIS IS NOT OFFICIAL GUIDE FOR YOU CHOOSING FRAMEWORK STRUCTURE DEPENDS ON 
+
+YOUR BACKGROUND / KNOWLEDGE / REQUIREMENTS ETC 
+
+DECIDE BY YOURSELF WHICH FRAMEWORK YOU ARE GONNA USE 
+
+ - Option 1 --> Cucumber with All Layers 
+ - Option 2 --> Cucumber for UI 
+ 		    --> Serenity for BACKEND (DB -API)
+ - Option 3 --> Maybe you had background and you wanna go to market with another tool that you are comfortable with it 
+
+ KEEP YOURSELF ALWAYS SAFE ZONE BASED ON YOUR KNOWLEDGE 		    
+
+
+
+
+
+
+
+
+While you are going to market you need to choose your framework 
+
+-------- CUCUMBER -------------
+
+- Cucumber Framework --> You already learnt in UI 
+
+	Q -> Which report we are using --> Cucumber Report 
+
+	Q -> Did we learnt how to manage tags or how to run through maven or how to run with Jenkins ?  YES 
+
+	Q -> How to do DDT in CUCUMBER ? 
+		- Scenario Outline / Examples / | pipes |
+		
+		
+ - UI --> UI Automation Class 
+ - DB --> 
+    Added dependeccy for different database driver 
+    Added DB_Util --> which includes all necessrary methods to get data 
+ 		  MYSQL  -> mysql-connector-java
+ 		  Oracle -> ojbdc11   
+
+ 	We used custom tags to manage DB Connection each time with using @db tag over related scenario/features 
+ 	Hooks will do onnection and destroy coneection after each scenairo
+ 	
+ - API 
+
+   Added dependency which we need to run API Testign 
+
+   		- Rest Assured
+   		- JSON Schame Validator
+   		- Jackson 
+   		- Lombok OPTOINAL --> Boiler Plate Codes 
+   		- Faker OPTIONAL  --> To create random Data
+   		- SLF4J
+
+   POJO    --> If we need to deserizalize to POJO it is still doable 
+   APIUTIL --> 
+
+   		We are able to create dynamic reqSpec or resSpec which is common for all part of request/response.In this dynamic methods we used paramters to get user credentials or status code.
+
+   		Can we make it more dynamic ? 
+
+   		- Of course with providing more data 
+   
+   Q -> Where we are gonna put steps related API ? 
+
+   	    - You can create APIStepDefs and put here all steps
+   	    - We create Response as global to share response data between step Def
+
+  ENVIRONMENT VARIABLES 
+
+        - We created 3 different environment called as 
+            qa1
+            qa2
+            qa3 
+
+        - We have 2 option to provide environment with 2 way 
+
+        FIRST WAY --> RUN FROM CUKESRUNNER 
+        		- It will read environment info from configuration.properties
+        		  environment=qa1
+        		- Based on provided env, Environment Variables will read
+        		  qa1.properties and initilize CONSTANT variables that we have into Environment Variables 
+        
+
+        SECOND -->RUN FROM MAVEN 
+        	
+        		- mvn test -Denvironment=qa2
+
+        		System.getProperty("environment") will take data that you pass through maven and read qa2.properties and and initilize CONSTANT variables that we have into Environment Variables	   
+
+        ADVANTAGE OF USING Environemnt CONSTANT Variables? 
+
+        	- We dont need to remember name of key for specific fields 
+        	- Since they are static fields we can use with classname
+
+        	   Environment.BASEURL
+        	   Environment.URL 
+        	   Environment.TEACHER 
+
+
+  				
+-------- SERENITY  -------------
+
+
+Framework for only Backend
+- I used java as my programming language in my framework.
+- I used maven as my built management tool. which has pom.xml file that allows me to manage my dependencies/versions easily.
+- I have used JUnit5  to run and organize my test cases.
+- I used Serenity to generate report and manage enviroments.
+- I have restAssured library and jdbc for api and database testing.
+
+ Database 
+	- Add related driver 
+		oracle -->ojdbc
+		mysql  --> mysql-connector-java
+		postgres --> postgres....
+
+	- DB_Util --> to run query and get result 
+
+	- JDBC --> It was coming from JAVA SE 
+
+	- Connection String --> Credentials,URL  (IP , Port numbers) 	
+
+
+Serenity usage.
+  -I have serenity.conf file and serenity.properties file where I store my base url,...
+  Database connection string and one valid user credentials for each type of user.
+
+  serenity.conf file allows me to switch between environments easily.I have same keyname with diffenrent environments so that when I want to switch I use
+  	mvn clean verify -Denvironment=...(qa2) and it runs my test cases against to env I used.
+  
+  If I dont specify it will use default environment that I set in serenity.conf file
+
+  I label my classes with @SerenityTest and I set my report and root name in serenity.properties file. So that tests are recognized by report.
+
+Junit5 Usage
+  I have baseclass for my project where I use @BeforeAll and @AfterAll methods to set my base_url, db connection, and close connections and reset.
+
+  I have used regular @Tests and @ParametrizedTests from Junit5.
+  @ParameterizedTests allow me to run same testcase with different sets of data which is DDT(Data Driven Testing).
+
+  I use @MethodSource and @CsvFileSource mostly, but I know there are like ValueSource and CsvSource also. (GIVE SOME EXAMPLE BASED ON PROJECT)
+
+        What is  APACHI POI ? 
+
+           - It is a dependency to read/write data from/to excel 
+        
+        What is Parameterized Test ? 
+
+           - It is a that for DDT in JUNIT5 
+
+        How we are gonna use Excel in JUNIT5 DDT ? 
+
+           - We are gonna create one method which will feed Method Source annotated parameterized Test 
+
+           - Create method to prepare set of data for Parameterized Test 
+
+
+RestAssured usage
+  I use Serenity version of restassured library where I have same methods in gherkin format.Gherkin allow me type readable test cases for non-technical people.If the person knows api they can easliy understand my test cases.
+
+  Serenity way is allowing me to get request and response in the report.I also use Ensure.that() type of verification to log each assertion that I make, to see in the report.
+
+  I use Hamcrest matchers inside the my assertion,I use pojo classes and java maps mostly to store and send request and json body.
+
+  I have utility classes for my api and database.
+  I have used database util class to create and close connection, it gets information from my serenituy.conf file and switch env dynamically. I also have ready methods to execute queries and store them the format I like,
+    example: list of maps to use inputs with @MethodSource
+
+  I also have ApiUtils we I created methods for reusable requests like generating token for different usertype. I also have some Response and RequestSpecification saved where I already defined repeated given and then sesssion.
+    Example for request: Accept,content-type,token for different user,log.
+
+
+
+
+If you wanna try to run Serenity Project in JENKINS too.It is totally optional and max 5 min it will take to set up 
+
+
+	# How to Get Report for Serenity after Jenkins Test Execution
+
+	1. Manage Jenkins --> Manage Plugins --> Available
+
+	2. Install ```Tuchydides Test Reports```  plugin and Restart Jenkins
+
+	3. Create new Jenkins Job for Serenity Project
+
+	4. Build--> Invoke Top Level Maven Targets -->``` mvn clean verify -Dtest=ClassName -Denvironment=library2 ```
+
+	5. Post Build Action --> ``` Publish Tuchydides Test Reports ```
+
+	6. Report path --> ``` target/site/serenity ```
+
+	7. Build Jenkins Job
+
+	8. Click over Jenkins Job
+
+	9. Click ```Tuchydides Test Reports ``` to see ```Serenity Report```
+
+
+**Rest is talking about API and DB Testing in this framework.**
+NOTE:we only know basics of serenity, you are ready to learn more. keep yourself in safe zone.
+
+
+--------------- HOW TO PASS any variable through MAVEN ---------------------
+
+- System.getProperty("user.dir") --> it will give framework path from your local 
+
+
+- System.getProperty("variable") --> it will read data that you provide from maven with -D keyword 
+
+	- D is using to define --> System property 
+
+	- Denvironment=qa2 --> it will define a system variable callaed as environment with the value qa2 
+
+	- If we use anywhere in framework 
+
+		System.getProperty("environment") --> it will catch your calue and use it 
+
+
+	mvn test -Denvironment=qa2 -Dbrowser=firefox 
+
+
+		--> ENVIRONMENT
+
+        String environment = System.getProperty("environment") != null ? environment = System.getProperty("environment") : ConfigurationReader.getProperty("environment");
+
+        environment=qa2
+
+        --> DRIVER
+        String browser = System.getProperty("browser") != null ? 
+        browser = System.getProperty("browser") : ConfigurationReader.getProperty("browser");
+
+        browser=firefox 
+
+
+Can we add more system variable ? 
+ - YES 
+
+	mvn test -Denvironment=qa2 -Dbrowser=firefox -Dteacher_email=white@cydeo.com
+
+	--> LOGIN 
+        String teacher_email = System.getProperty("teacher_email") != null ? 
+        teacher_email = System.getProperty("teacher_email") : Environment.TEACHER_EMAIL;
+
+
+
+--- REPORT -------
+
+    1- Jenkins --> When you run your suite from Jenkins with the help of plugins(Jira,TestRail ...) you can put your result into 
+                Jira,Testrail... automatically.
+
+    2- After execution --> Take your screenshot put as evidence into your tool (Jira.....) or you can import your report as well
+                
+    3- You can set email conf to get report after executions.
+
+
+
+
+
+
+
+
+
+

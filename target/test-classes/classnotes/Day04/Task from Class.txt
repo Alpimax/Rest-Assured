@@ -1,0 +1,47 @@
+Task from Class
+
+ 
+     Given
+             accept type is application/json
+     When
+             user sends get request to /locaitons
+     Then
+             response status code must be 200
+             content type equals to application/json
+             get the second city with JsonPath
+             get the last city with JsonPath
+             get all country ids
+             get all city where their country id is UK
+
+
+
+
+
+    Given accept type is application/json
+    And path param is 22
+    When user send request /student/batch/{batch}
+    Then status code should be 200
+    And content type is application/json;charset=UTF-8
+    And Date header is exist
+    And Server header is envoy
+    And verify all the batch number is 22
+   
+
+
+
+
+     * Create TestBase for zipcode
+     * website ----> https://www.zippopotam.us/#
+
+
+   
+     Given accept type is json
+     and country path param value is "us"
+     and postal code path param value is 22102
+     When I send get request to http://api.zippopotam.us/{country}/{postal-code}
+     Then status code is 200
+     Then "post code" is "22102"
+     And  "country" is "United States"
+     And "place name" is "Mc Lean"
+     And  "state" is "Virginia"
+ 

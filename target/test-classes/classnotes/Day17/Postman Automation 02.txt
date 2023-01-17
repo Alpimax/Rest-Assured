@@ -1,0 +1,264 @@
+
+
+
+API DAY 17 
+
+ - Variables
+
+ 		- Global Variables     --> It is accessible from workspace
+ 		- Collection Variables --> It is accessible into realted Collection 
+ 		- Environment Variables -> 
+ 		- Data Varaibles       --> if you do DDT Testing from external file.The data that you are getting called as Data Variable
+ 									{{name}} - {{gender}} --> column name from external file (json,csv)
+
+ 		- Local Varaibles      --> Local variable values are scoped to a single request or collection run 
+
+ - How to Get Values From List
+
+        GET /employees 
+         --> http://44.212.37.188:1000/ords/hr/employees?q={"job_id": "IT_PROG"}
+
+   	
+
+        //verify Bruce email is BERNS
+
+    	// Status Code is 200 
+		pm.test("Status code is 200", function () {
+		    pm.response.to.have.status(200);
+		});
+
+		// This all response and stored in a variable 
+		var jsonData = pm.response.json();
+
+		//verfiy second employee eamil is BERNST
+		pm.test("Verfiy second employee eamil is BERNST", function () { 
+		    pm.expect(jsonData.items[1].email).to.eql("BERNST");
+		});
+
+		//verify each job id is equal IT_PROG
+		pm.test("verify each job id is equal IT_PROG", function () {
+		   for(var i=0;i<jsonData.items.length;i++){
+		    console.log("Each job id is "+ jsonData.items[i].job_id);
+		    pm.expect(jsonData.items[i].job_id).to.eql("IT_PROG");
+		  
+		   }
+
+		});
+
+ - How to verify JSON Schema ?
+
+ 			var schemaName= putSchemaHere 
+
+        	// get reponse and store in a variable 
+            var responseData=pm.response.json();
+
+            // This is where validation happens  
+            tests['Schema is valid']=tv4.validate(responseData,schemaName);
+        	
+        	// if any error occured we are gonna see in this line 
+            console.log(tv4.error);
+
+            tv4 library helps us to validate schemas with validate method
+
+
+            NOTE--> You can try for POSTSpartan schema as well
+                    RestAssured Project under resources 
+
+ - Environments 
+
+ 		QA1
+ 			base_url=https://api.qa.bookit.cydeo.com 
+ 			teacherEmail=blyst6@si.edu
+			teacherPassword=barbabaslyst
+
+ 		QA2 
+ 			base_url=https://api.qa2.bookit.cydeo.com
+ 			teacherEmail=teacherilsamnickel@gmail.com
+			teacherPassword=samnickel
+
+
+		Request 1 --> GET / sign
+                     {{baseUrl}}/sign?email={{teacherEmail}}&password={{teacherPassword}}
+
+        Request 2 --> GET /api/users/me
+                     {{baseUrl}}/api/users/me 
+                     
+                     - Click Auth Tab to add token varaible that we gonna get from first request   
+
+ - Monitors
+
+ 		- A monitor lets you run a collection periodically to check for its performance and response.
+
+ - Newman
+
+ 		- Newman is a command-line Collection Runner for Postman. It enables you to run and test a Postman Collection directly from the command line. 
+
+ 		-> INSTALLATION --> To get started using Newman, install Node.js, then Newman.
+
+ 			- https://learning.postman.com/docs/running-collections/using-newman-cli/installing-running-newman/
+
+ 	    -> HOW TO RUN 
+
+ 	       -> PRE CONDITION --> NODE JS and NEWMAN needs to be installed
+           -> INSTALL HTML REPORT 
+           			Link--> https://www.npmjs.com/package/newman-reporter-htmlextra
+           			Terminal/Powershell 
+           					-> npm install -g newman-reporter-htmlextra 
+           					-> Hit enter
+
+            newman run Collection.json -r htmlextra 
+            
+                       (CollectionName)    (-r --> report  /   htmlextra --> report name) 	 					
+
+
+			newman run Collection.json -r htmlextra,cli 
+
+			      Additionally it gives cli report too 
+
+        HOW TO EXPORT COLLECTION AS JSON TO RUN IN CLI 
+
+        	-> Right click over Collection 
+        	-> Import as json file 
+        	-> Give a name for it 
+
+        HOW TO RUN IN TERMINAL 
+
+        	-> cd Desktop --> will show Desktop to make it runnable in Terminal.It is working directory 
+        		NOTE --> Since we will put in class in here we used cd Desktop 
+
+        	-> newman run --> it is the command to run collection 	
+
+        --> RUN 1 -> SPARTAN COLLECTION 
+
+        	newman run spartan.json -r htmlextra 
+
+        	spartan.json  --> Collection
+        	-r htmlextra  --> Reporting Tool
+
+        	As a default it will generate newman folder to store report  
+
+
+        --> RUN 2 -> SPARTAN DDT COLLECTION 
+
+        	newman run  spartanDDT.json -d SpartanDataPOST.csv  -r htmlextra,cli  --reporter-htmlextra-export newman/report.html
+
+        	-d SpartanDataPOST.csv    --> DDT DATA 	
+        	spartanDDT.json           --> Collection 
+        	-r htmlextra              --> Reporting tool
+        	--reporter-htmlextra-export newman/report.html  --> report name
+
+
+
+        NOTE --> 
+
+         1 - So far we did all steps manually.We export json report and save in local to use it 
+         2 - Also we can put all json collection into Github Repository to use in Jenkins too 
+         3 - Integrate Postman to Github to keep your collection updated always 
+         	 -> https://learning.postman.com/docs/integrations/available-integrations/github/
+
+ - Jenkins 
+
+ 		HOW TO RUN VIA JENKINS 
+
+ 		   Link --> 
+ 		   https://learning.postman.com/docs/running-collections/using-newman-cli/integration-with-jenkins/#installation
+
+
+ 		Link for Repository --> https://github.com/mehmetCt/postman
+
+ 		--> NodeJS needs to be installed 
+
+ 			Global Tool Conf --> NodeJS --> NodeJS Installation 
+
+ 				--> Global npm packages to install 
+ 					newman-reporter-htmlextra
+                	       (report)
+
+            Plugins 
+
+            	--> Manage Jenkins --> Plugins --> Available 
+            		--> NodeJS Plugin --> Select checkbox 
+                    --> HTML Publisher --> Select checkbox 
+                    --> Download now and install after restart
+
+
+            Create JOB 
+
+            	--> FreeStyle 
+            	--> SCM --> Git 
+            	--> Add repo https://github.com/mehmetCt/postman
+            	--> Choose main branch
+            	--> Build Environments  -->  Provide Node npm bin/folder to PATH
+            	--> Execute Windows batch commands
+            			--> newman run -d SpartanDataPOST.csv spartanDDT.json -r cli,htmlextra  --reporter-htmlextra-export  newman/report.html  --disable-unicode
+
+
+            			NOTE --> 
+            				-d SpartanDataPOST.csv -> DDT File 
+            				spartanDDT.json        -> Collection 
+            				-r cli,htmlextra       -> report for cli (console) and html 
+            				--reporter-htmlextra-export  newman/report.html --> report folder 
+            				--disable-unicode      -> to see report properly without any symbol in consol 
+
+
+
+            	--> POST BUILD 
+            	     -> HTML Publisher Report 
+            	     -> Add Report 
+            	     -> HTML directory to archive --> newman 
+            	     -> Index page[s]  --> report.html 
+ 
+ 		        --> Save / Apply 
+ 		        --> Build Now 
+
+ 		        --> Click over HTML Report 
+
+
+        NOTE --> This flow might change based on newman / nodejs / jenkins Updates. If it is not working properly 
+                 to learn more detail always check POSTMAN document 
+
+
+
+ -- Question / Answers 
+
+ 	1- Why we use restassured if postman has also automation part ?
+		if you are implementing only API testing postman is also fine but if you need UI and DB included in your scenarios, we cannot use postman that is the reason.
+
+	2- Can you use different environments in postman ?
+		Yes, postman supports multiple enviroments, we have different type of variables and environments are one of them.
+
+		Global
+		Environment
+		Collection
+		Data
+		Local	
+		
+
+    3- What are the things that we can verify with Postman Automation ?
+
+		So in api testing we verify followings
+		    1.Status code
+		        2xx
+		        4xx
+		        5xx
+		    2.Headers
+		        -existince of headers like Date, in this verificaiton we dont check value only check if it exists or not
+		         -header value like Content-type, this type of verification we provide header name and we get header value. and make sure it is matching with expected value
+		    3.Response Body
+		        mostly we verify JSON result and it is easy to reach values and assert in postman too.
+		    4.Json Schema Validation
+		        we got ready schema from developers and compare the result is matching with schema requirements or not.
+		        tv4 --> tiny validator 
+
+
+
+	4- How can we run our smoke test with Postman ?
+
+		We have Monitor menu on the left side, so it is like Jenkins in postman.
+		if you create monitor it gives you option to select which collection to run, which env to pick values, and frequecny like every our and every day. once you set it, you dont need to have postman open to get those collections executed.
+
+	5- Can we run our postman collections without postman ?
+
+		Yes. Postman have one cli tool which is called Newman. to have newman you need to install NodeJS then Newman to your computer. Once you have it you can run your collection as follows;	  
+
+			newman run yourCollectionLinkOrFileHere      
